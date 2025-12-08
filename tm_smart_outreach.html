@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f8f9fa;
+      font-size: 13px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 12px 0;
+      border-bottom: 2px solid #00c853;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #00c853;
+    }
+
+    .header p {
+      margin: 4px 0 0;
+      color: #5f6368;
+      font-size: 11px;
+    }
+
+    .summary-bar {
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-value {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .summary-value.call { color: #d32f2f; }
+    .summary-value.text { color: #1976d2; }
+
+    .summary-label {
+      font-size: 10px;
+      color: #5f6368;
+    }
+
+    .deals-container {
+      max-height: calc(100vh - 280px);
+      overflow-y: auto;
+    }
+
+    .deal-card {
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid #1a73e8;
+    }
+
+    .deal-card.hot {
+      border-left-color: #00c853;
+    }
+
+    .deal-card.solid {
+      border-left-color: #2196f3;
+    }
+
+    .deal-card.marginal {
+      border-left-color: #ff9800;
+    }
+
+    .deal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .deal-rank {
+      background: #f1f3f4;
+      color: #5f6368;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .deal-class {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .deal-class.hot { background: #c8e6c9; color: #1b5e20; }
+    .deal-class.solid { background: #bbdefb; color: #0d47a1; }
+    .deal-class.marginal { background: #ffe0b2; color: #e65100; }
+
+    .deal-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #3c4043;
+    }
+
+    .deal-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+      font-size: 11px;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .metric-label {
+      color: #5f6368;
+    }
+
+    .metric-value {
+      font-weight: 500;
+    }
+
+    .metric-value.profit {
+      color: #2e7d32;
+    }
+
+    .seller-info {
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 11px;
+    }
+
+    .seller-name {
+      font-weight: 500;
+    }
+
+    .seller-contact {
+      color: #1a73e8;
+    }
+
+    .hot-seller-badge {
+      display: inline-block;
+      background: #fff9c4;
+      color: #f57f17;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    .message-preview {
+      background: #e3f2fd;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      line-height: 1.4;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-copy {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+
+    .btn-copy:hover {
+      background: #d2e3fc;
+    }
+
+    .btn-contacted {
+      background: #c8e6c9;
+      color: #1b5e20;
+    }
+
+    .btn-contacted:hover {
+      background: #a5d6a7;
+    }
+
+    .btn-scheduled {
+      background: #ffe0b2;
+      color: #e65100;
+    }
+
+    .btn-scheduled:hover {
+      background: #ffcc80;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #5f6368;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .status-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #323232;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #5f6368;
+    }
+
+    .refresh-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      color: #1a73e8;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .refresh-btn:hover {
+      background: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💬 Smart Outreach</h1>
+    <p>Top deals ready for action</p>
+  </div>
+
+  <div class="summary-bar">
+    <div class="summary-item">
+      <div class="summary-value call" id="callCount">-</div>
+      <div class="summary-label">TO CALL</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-value text" id="textCount">-</div>
+      <div class="summary-label">TO TEXT</div>
+    </div>
+  </div>
+
+  <div class="deals-container" id="dealsContainer">
+    <div class="loading">Loading deals...</div>
+  </div>
+
+  <button class="refresh-btn" onclick="loadDeals()">🔄 Refresh Deals</button>
+
+  <div class="status-toast" id="statusToast"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDeals();
+    });
+
+    function loadDeals() {
+      document.getElementById('dealsContainer').innerHTML =
+        '<div class="loading">Loading deals...</div>';
+
+      google.script.run
+        .withSuccessHandler(function(deals) {
+          renderDeals(deals);
+          updateCounts(deals);
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('dealsContainer').innerHTML =
+            '<div class="empty-state">' +
+            '<div class="empty-state-icon">⚠️</div>' +
+            '<p>Failed to load deals</p>' +
+            '</div>';
+        })
+        .TM_getTopDealsForUi(10);
+    }
+
+    function renderDeals(deals) {
+      if (!deals || deals.length === 0) {
+        document.getElementById('dealsContainer').innerHTML =
+          '<div class="empty-state">' +
+          '<div class="empty-state-icon">📭</div>' +
+          '<p>No deals found</p>' +
+          '<p style="font-size: 11px;">Run analysis first</p>' +
+          '</div>';
+        return;
+      }
+
+      var html = '';
+      deals.forEach(function(deal) {
+        var cardClass = 'deal-card';
+        var dealClassLower = (deal.dealClass || '').toLowerCase().replace(' ', '');
+        if (dealClassLower.includes('hot')) cardClass += ' hot';
+        else if (dealClassLower.includes('solid')) cardClass += ' solid';
+        else if (dealClassLower.includes('marginal')) cardClass += ' marginal';
+
+        html += '<div class="' + cardClass + '">';
+
+        // Header
+        html += '<div class="deal-header">';
+        html += '<div class="deal-rank">' + deal.rank + '</div>';
+        html += '<span class="deal-class ' + getDealClassStyle(deal.dealClass) + '">' + deal.dealClass + '</span>';
+        html += '</div>';
+
+        // Title
+        html += '<div class="deal-title">' + escapeHtml(deal.title) + '</div>';
+
+        // Metrics
+        html += '<div class="deal-metrics">';
+        html += '<div class="metric"><span class="metric-label">Asking</span><span class="metric-value">' + deal.askingPrice + '</span></div>';
+        html += '<div class="metric"><span class="metric-label">Offer</span><span class="metric-value">' + deal.offerTarget + '</span></div>';
+        html += '<div class="metric"><span class="metric-label">Profit</span><span class="metric-value profit">' + deal.expectedProfit + '</span></div>';
+        html += '<div class="metric"><span class="metric-label">Margin</span><span class="metric-value">' + deal.profitMargin + '</span></div>';
+        html += '</div>';
+
+        // Seller info
+        html += '<div class="seller-info">';
+        if (deal.sellerName) {
+          html += '<span class="seller-name">' + escapeHtml(deal.sellerName) + '</span>';
+        }
+        if (deal.hotSeller === 'YES') {
+          html += '<span class="hot-seller-badge">⭐ HOT SELLER</span>';
+        }
+        if (deal.sellerContact) {
+          html += '<br><span class="seller-contact">' + escapeHtml(deal.sellerContact) + '</span>';
+        }
+        html += '</div>';
+
+        // Message preview
+        if (deal.autoMessage) {
+          html += '<div class="message-preview">' + escapeHtml(deal.autoMessage) + '</div>';
+        }
+
+        // Action buttons
+        html += '<div class="action-buttons">';
+        html += '<button class="btn btn-copy" onclick="copyMessage(\'' + escapeJs(deal.autoMessage) + '\')">📋 Copy</button>';
+        html += '<button class="btn btn-contacted" onclick="markContacted(\'' + deal.masterId + '\')">✓ Contacted</button>';
+        html += '<button class="btn btn-scheduled" onclick="markScheduled(\'' + deal.masterId + '\')">📅 Scheduled</button>';
+        html += '</div>';
+
+        html += '</div>';
+      });
+
+      document.getElementById('dealsContainer').innerHTML = html;
+    }
+
+    function updateCounts(deals) {
+      var callCount = 0;
+      var textCount = 0;
+
+      deals.forEach(function(deal) {
+        if (deal.action === 'CALL') callCount++;
+        else if (deal.action === 'TEXT') textCount++;
+      });
+
+      document.getElementById('callCount').textContent = callCount;
+      document.getElementById('textCount').textContent = textCount;
+    }
+
+    function getDealClassStyle(dealClass) {
+      if (!dealClass) return '';
+      var lower = dealClass.toLowerCase();
+      if (lower.includes('hot')) return 'hot';
+      if (lower.includes('solid')) return 'solid';
+      if (lower.includes('marginal')) return 'marginal';
+      return '';
+    }
+
+    function copyMessage(message) {
+      // Create temporary textarea
+      var textarea = document.createElement('textarea');
+      textarea.value = message;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      showToast('Message copied to clipboard!');
+    }
+
+    function markContacted(masterId) {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showToast(result.message);
+          loadDeals();
+        })
+        .withFailureHandler(function(err) {
+          showToast('Error: ' + err.message);
+        })
+        .TM_markContactedFromUi(masterId);
+    }
+
+    function markScheduled(masterId) {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showToast(result.message);
+          loadDeals();
+        })
+        .withFailureHandler(function(err) {
+          showToast('Error: ' + err.message);
+        })
+        .TM_markScheduledFromUi(masterId);
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById('statusToast');
+      toast.textContent = message;
+      toast.style.display = 'block';
+
+      setTimeout(function() {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(text));
+      return div.innerHTML;
+    }
+
+    function escapeJs(text) {
+      if (!text) return '';
+      return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+  </script>
+</body>
+</html>

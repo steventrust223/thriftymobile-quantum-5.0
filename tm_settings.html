@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8f9fa;
+      font-size: 13px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #5e35b1;
+    }
+
+    .header p {
+      margin: 0;
+      color: #5f6368;
+      font-size: 12px;
+    }
+
+    .settings-container {
+      max-height: 350px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .settings-group {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .group-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #5e35b1;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .setting-item {
+      margin-bottom: 16px;
+    }
+
+    .setting-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .setting-label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #3c4043;
+    }
+
+    .setting-description {
+      font-size: 11px;
+      color: #5f6368;
+      margin-bottom: 6px;
+    }
+
+    .setting-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: #5e35b1;
+    }
+
+    .setting-input[readonly] {
+      background: #f8f9fa;
+      color: #5f6368;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      padding-top: 16px;
+      border-top: 1px solid #e8e8e8;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #5e35b1;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #4527a0;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #5f6368;
+      border: 1px solid #dadce0;
+    }
+
+    .btn-secondary:hover {
+      background: #f8f9fa;
+    }
+
+    .status-message {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .status-success {
+      background: #c8e6c9;
+      color: #1b5e20;
+    }
+
+    .status-error {
+      background: #ffcdd2;
+      color: #b71c1c;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #5f6368;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚙️ Settings</h1>
+    <p>Configure thresholds and system parameters</p>
+  </div>
+
+  <div id="statusMessage" class="status-message"></div>
+
+  <div id="settingsContainer" class="settings-container">
+    <div class="loading">Loading settings...</div>
+  </div>
+
+  <div class="buttons">
+    <button class="btn btn-secondary" onclick="google.script.host.close()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+  </div>
+
+  <script>
+    var settingsData = {};
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSettings();
+    });
+
+    function loadSettings() {
+      google.script.run
+        .withSuccessHandler(function(settings) {
+          renderSettings(settings);
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('settingsContainer').innerHTML =
+            '<div class="loading">Failed to load settings: ' + err.message + '</div>';
+        })
+        .TM_getSettingsForUi();
+    }
+
+    function renderSettings(settings) {
+      // Group settings by category
+      var groups = {};
+      settings.forEach(function(setting) {
+        var cat = setting.category || 'Other';
+        if (!groups[cat]) {
+          groups[cat] = [];
+        }
+        groups[cat].push(setting);
+        settingsData[setting.name] = setting.value;
+      });
+
+      var html = '';
+      for (var category in groups) {
+        html += '<div class="settings-group">';
+        html += '<div class="group-title">' + category + '</div>';
+
+        groups[category].forEach(function(setting) {
+          html += '<div class="setting-item">';
+          html += '<label class="setting-label">' + formatSettingName(setting.name) + '</label>';
+          if (setting.description) {
+            html += '<div class="setting-description">' + setting.description + '</div>';
+          }
+          html += '<input type="text" class="setting-input" ';
+          html += 'id="setting_' + setting.name + '" ';
+          html += 'value="' + escapeHtml(setting.value) + '" ';
+          html += 'onchange="updateSetting(\'' + setting.name + '\', this.value)">';
+          html += '</div>';
+        });
+
+        html += '</div>';
+      }
+
+      document.getElementById('settingsContainer').innerHTML = html;
+    }
+
+    function formatSettingName(name) {
+      return name.replace(/_/g, ' ').replace(/\b\w/g, function(l) {
+        return l.toUpperCase();
+      });
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(text));
+      return div.innerHTML;
+    }
+
+    function updateSetting(name, value) {
+      settingsData[name] = value;
+    }
+
+    function saveSettings() {
+      showStatus('Saving settings...');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showStatus(result.message, false);
+            setTimeout(function() {
+              google.script.host.close();
+            }, 1500);
+          } else {
+            showStatus(result.message, true);
+          }
+        })
+        .withFailureHandler(function(err) {
+          showStatus('Save failed: ' + err.message, true);
+        })
+        .TM_saveSettingsFromUi(settingsData);
+    }
+
+    function showStatus(message, isError) {
+      var el = document.getElementById('statusMessage');
+      el.textContent = message;
+      el.className = 'status-message ' + (isError ? 'status-error' : 'status-success');
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

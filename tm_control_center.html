@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f8f9fa;
+      font-size: 13px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 16px 0;
+      border-bottom: 2px solid #1a73e8;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #1a73e8;
+    }
+
+    .header p {
+      margin: 4px 0 0;
+      color: #5f6368;
+      font-size: 11px;
+    }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1a73e8;
+    }
+
+    .stat-value.hot {
+      color: #00c853;
+    }
+
+    .stat-value.profit {
+      color: #2e7d32;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: #5f6368;
+      text-transform: uppercase;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #5f6368;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+
+    .btn-success {
+      background: #00c853;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #00a844;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+    }
+
+    .btn-secondary:hover {
+      background: #f8f9fa;
+    }
+
+    .btn-icon {
+      margin-right: 8px;
+    }
+
+    .log-section {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .log-entry {
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f3f4;
+      font-size: 11px;
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-time {
+      color: #5f6368;
+      font-size: 10px;
+    }
+
+    .log-type {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .log-type.SUCCESS { background: #c8e6c9; color: #1b5e20; }
+    .log-type.ERROR { background: #ffcdd2; color: #b71c1c; }
+    .log-type.INFO { background: #bbdefb; color: #0d47a1; }
+    .log-type.WARNING { background: #ffe0b2; color: #e65100; }
+
+    .log-message {
+      display: block;
+      margin-top: 4px;
+      color: #3c4043;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #5f6368;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #1a73e8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .status-message {
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+
+    .status-success {
+      background: #c8e6c9;
+      color: #1b5e20;
+    }
+
+    .status-error {
+      background: #ffcdd2;
+      color: #b71c1c;
+    }
+
+    #statusMessage {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📱💰 Thrifty Mobile Quantum 5.0</h1>
+    <p>Quantum Automated Dealmaker</p>
+  </div>
+
+  <div id="statusMessage" class="status-message"></div>
+
+  <div class="quick-stats" id="quickStats">
+    <div class="stat-card">
+      <div class="stat-value" id="statDevices">-</div>
+      <div class="stat-label">Devices</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value hot" id="statHotDeals">-</div>
+      <div class="stat-label">Hot Deals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statSolid">-</div>
+      <div class="stat-label">Solid Deals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value profit" id="statProfit">-</div>
+      <div class="stat-label">Potential</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Actions</div>
+    <button class="btn btn-primary" onclick="runSync()">
+      <span class="btn-icon">🔄</span>Run Import → Master Sync
+    </button>
+    <button class="btn btn-success" onclick="runAnalysis()">
+      <span class="btn-icon">📊</span>Run Full Analysis
+    </button>
+    <button class="btn btn-primary" onclick="rebuildVerdict()">
+      <span class="btn-icon">🏅</span>Rebuild Verdict Sheet
+    </button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Views</div>
+    <button class="btn btn-secondary" onclick="openDashboard()">
+      <span class="btn-icon">📈</span>Open Dashboards
+    </button>
+    <button class="btn btn-secondary" onclick="openSettings()">
+      <span class="btn-icon">⚙️</span>Settings
+    </button>
+    <button class="btn btn-secondary" onclick="openOutreach()">
+      <span class="btn-icon">💬</span>Smart Outreach
+    </button>
+    <button class="btn btn-secondary" onclick="openHelp()">
+      <span class="btn-icon">📚</span>Help / Overview
+    </button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Recent Activity</div>
+    <div class="log-section" id="logSection">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading logs...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load initial data
+    document.addEventListener('DOMContentLoaded', function() {
+      loadQuickStats();
+      loadLogs();
+    });
+
+    function loadQuickStats() {
+      google.script.run
+        .withSuccessHandler(function(stats) {
+          document.getElementById('statDevices').textContent = stats.totalDevices || 0;
+          document.getElementById('statHotDeals').textContent = stats.hotDeals || 0;
+          document.getElementById('statSolid').textContent = stats.solidDeals || 0;
+          document.getElementById('statProfit').textContent = stats.totalProfit || '$0';
+        })
+        .withFailureHandler(function(err) {
+          console.error('Failed to load stats:', err);
+        })
+        .TM_getQuickStats();
+    }
+
+    function loadLogs() {
+      google.script.run
+        .withSuccessHandler(function(logs) {
+          var html = '';
+          if (logs && logs.length > 0) {
+            logs.forEach(function(log) {
+              html += '<div class="log-entry">';
+              html += '<span class="log-time">' + log.timestamp + '</span>';
+              html += '<span class="log-type ' + log.type + '">' + log.type + '</span>';
+              html += '<span class="log-message">' + log.message + '</span>';
+              html += '</div>';
+            });
+          } else {
+            html = '<div class="log-entry">No recent activity</div>';
+          }
+          document.getElementById('logSection').innerHTML = html;
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('logSection').innerHTML =
+            '<div class="log-entry">Failed to load logs</div>';
+        })
+        .TM_getRecentLogsForUi();
+    }
+
+    function showStatus(message, isError) {
+      var el = document.getElementById('statusMessage');
+      el.textContent = message;
+      el.className = 'status-message ' + (isError ? 'status-error' : 'status-success');
+      el.style.display = 'block';
+
+      setTimeout(function() {
+        el.style.display = 'none';
+      }, 5000);
+    }
+
+    function runSync() {
+      showStatus('Running sync...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showStatus(result.message, !result.success);
+          loadQuickStats();
+          loadLogs();
+        })
+        .withFailureHandler(function(err) {
+          showStatus('Sync failed: ' + err.message, true);
+        })
+        .TM_runSyncFromUi();
+    }
+
+    function runAnalysis() {
+      showStatus('Running analysis...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showStatus(result.message, !result.success);
+          loadQuickStats();
+          loadLogs();
+        })
+        .withFailureHandler(function(err) {
+          showStatus('Analysis failed: ' + err.message, true);
+        })
+        .TM_runAnalysisFromUi();
+    }
+
+    function rebuildVerdict() {
+      showStatus('Rebuilding verdict...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showStatus(result.message, !result.success);
+          loadQuickStats();
+          loadLogs();
+        })
+        .withFailureHandler(function(err) {
+          showStatus('Rebuild failed: ' + err.message, true);
+        })
+        .TM_rebuildVerdictFromUi();
+    }
+
+    function openDashboard() {
+      google.script.run.TM_showDashboardSidebar();
+    }
+
+    function openSettings() {
+      google.script.run.TM_showSettingsDialog();
+    }
+
+    function openOutreach() {
+      google.script.run.TM_showSmartOutreach();
+    }
+
+    function openHelp() {
+      google.script.run.TM_showHelpDialog();
+    }
+  </script>
+</body>
+</html>

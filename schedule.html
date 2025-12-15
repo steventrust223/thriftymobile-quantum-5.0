@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Pickup or Drop-off | Same Day Available | ThriftyMobile</title>
+    <meta name="description" content="Schedule your free pickup or drop-off. Same-day service available. Get cash on the spot.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="css/design-system.css">
+
+    <style>
+        /* Schedule Page Specific Styles */
+
+        /* Header */
+        .schedule-header {
+            background: var(--tm-white);
+            border-bottom: 1px solid var(--tm-gray-200);
+            padding: var(--tm-space-4) 0;
+            position: sticky;
+            top: 0;
+            z-index: var(--tm-z-sticky);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-3);
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-extrabold);
+            color: var(--tm-gray-900);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--tm-gradient-primary);
+            border-radius: var(--tm-radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--tm-white);
+        }
+
+        .quote-badge {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-4);
+            background: var(--tm-secondary-50);
+            border: 1px solid var(--tm-secondary-200);
+            padding: var(--tm-space-3) var(--tm-space-5);
+            border-radius: var(--tm-radius-full);
+        }
+
+        .quote-amount {
+            font-size: var(--tm-text-2xl);
+            font-weight: var(--tm-font-extrabold);
+            color: var(--tm-secondary);
+        }
+
+        .quote-timer {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            color: var(--tm-accent-600);
+            font-weight: var(--tm-font-semibold);
+            font-size: var(--tm-text-sm);
+        }
+
+        /* Main Layout */
+        .schedule-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: var(--tm-space-8);
+            padding: var(--tm-space-8) 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Main Section */
+        .schedule-main {
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-3xl);
+            padding: var(--tm-space-10);
+            box-shadow: var(--tm-shadow-xl);
+        }
+
+        .schedule-title {
+            font-size: var(--tm-text-3xl);
+            font-weight: var(--tm-font-extrabold);
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .schedule-subtitle {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-lg);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        /* Urgency Banner */
+        .urgency-banner {
+            background: var(--tm-gradient-accent);
+            color: var(--tm-white);
+            padding: var(--tm-space-4);
+            border-radius: var(--tm-radius-xl);
+            text-align: center;
+            font-weight: var(--tm-font-semibold);
+            margin-bottom: var(--tm-space-8);
+            animation: tm-pulse 3s infinite;
+        }
+
+        /* Service Types Grid */
+        .service-types {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--tm-space-4);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .service-card {
+            border: 3px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-6);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--tm-duration-200) var(--tm-ease-default);
+            position: relative;
+            background: var(--tm-white);
+        }
+
+        .service-card:hover {
+            border-color: var(--tm-primary-300);
+            transform: translateY(-4px);
+            box-shadow: var(--tm-shadow-lg);
+        }
+
+        .service-card.selected {
+            border-color: var(--tm-primary);
+            background: var(--tm-primary-50);
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        .service-card.selected::after {
+            content: '&#10003;';
+            position: absolute;
+            top: var(--tm-space-3);
+            right: var(--tm-space-3);
+            width: 28px;
+            height: 28px;
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--tm-font-bold);
+        }
+
+        .service-icon {
+            font-size: 40px;
+            margin-bottom: var(--tm-space-3);
+        }
+
+        .service-name {
+            font-size: var(--tm-text-lg);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .service-desc {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+            margin-bottom: var(--tm-space-3);
+        }
+
+        .service-badge {
+            display: inline-block;
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+            padding: var(--tm-space-1) var(--tm-space-3);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-xs);
+            font-weight: var(--tm-font-bold);
+            text-transform: uppercase;
+        }
+
+        .service-badge-accent {
+            background: var(--tm-gradient-accent);
+        }
+
+        /* Dynamic Content Boxes */
+        .dynamic-box {
+            border-radius: var(--tm-radius-xl);
+            padding: var(--tm-space-5);
+            margin-bottom: var(--tm-space-6);
+            display: none;
+            animation: tm-fade-up 0.3s var(--tm-ease-out);
+        }
+
+        .dynamic-box.show {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-4);
+        }
+
+        .dynamic-pickup {
+            background: var(--tm-secondary-50);
+            border: 1px solid var(--tm-secondary-200);
+        }
+
+        .dynamic-shipping {
+            background: var(--tm-primary-50);
+            border: 1px solid var(--tm-primary-200);
+        }
+
+        .dynamic-icon {
+            font-size: 36px;
+        }
+
+        .dynamic-content h3 {
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .dynamic-content p {
+            color: var(--tm-gray-600);
+            font-size: var(--tm-text-sm);
+        }
+
+        /* Calendar Section */
+        .calendar-section {
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .calendar-title {
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-bold);
+        }
+
+        .spots-badge {
+            background: var(--tm-accent);
+            color: var(--tm-white);
+            padding: var(--tm-space-2) var(--tm-space-4);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-bold);
+            animation: tm-pulse 2s infinite;
+        }
+
+        /* Date Pills */
+        .date-selector {
+            display: flex;
+            gap: var(--tm-space-3);
+            margin-bottom: var(--tm-space-6);
+            overflow-x: auto;
+            padding-bottom: var(--tm-space-2);
+        }
+
+        .date-pill {
+            flex-shrink: 0;
+            padding: var(--tm-space-3) var(--tm-space-5);
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+            background: var(--tm-white);
+            min-width: 100px;
+        }
+
+        .date-pill:hover {
+            border-color: var(--tm-primary-300);
+        }
+
+        .date-pill.selected {
+            background: var(--tm-gradient-primary);
+            border-color: var(--tm-primary);
+            color: var(--tm-white);
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        .date-pill.urgent {
+            position: relative;
+        }
+
+        .date-pill.urgent::before {
+            content: '&#128293;';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 16px;
+        }
+
+        .date-day {
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .date-date {
+            font-size: var(--tm-text-sm);
+            opacity: 0.8;
+        }
+
+        /* Time Slots */
+        .time-slots-title {
+            font-weight: var(--tm-font-semibold);
+            margin-bottom: var(--tm-space-4);
+            color: var(--tm-gray-700);
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--tm-space-3);
+        }
+
+        .time-slot {
+            padding: var(--tm-space-4);
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+            background: var(--tm-white);
+        }
+
+        .time-slot:hover:not(.unavailable) {
+            border-color: var(--tm-primary-300);
+            transform: translateY(-2px);
+        }
+
+        .time-slot.selected {
+            background: var(--tm-gradient-primary);
+            border-color: var(--tm-primary);
+            color: var(--tm-white);
+        }
+
+        .time-slot.unavailable {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .time-slot-time {
+            font-size: var(--tm-text-lg);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .time-slot-status {
+            font-size: var(--tm-text-xs);
+            color: var(--tm-gray-500);
+        }
+
+        .time-slot.selected .time-slot-status {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Location Form */
+        .location-form {
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .form-title {
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-5);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--tm-space-4);
+        }
+
+        .form-group {
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Sidebar */
+        .schedule-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        /* Quote Summary Card */
+        .quote-summary {
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-6);
+            box-shadow: var(--tm-shadow-xl);
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .summary-header {
+            border-bottom: 1px solid var(--tm-gray-200);
+            padding-bottom: var(--tm-space-4);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .summary-title {
+            font-size: var(--tm-text-lg);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .device-info {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+        }
+
+        .price-display {
+            text-align: center;
+            padding: var(--tm-space-6) 0;
+        }
+
+        .price-label {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .price-value {
+            font-size: var(--tm-text-5xl);
+            font-weight: var(--tm-font-black);
+            background: var(--tm-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-details {
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--tm-space-3) 0;
+            border-bottom: 1px solid var(--tm-gray-100);
+        }
+
+        .detail-row:last-child {
+            border: none;
+        }
+
+        .detail-label {
+            color: var(--tm-gray-500);
+        }
+
+        .detail-value {
+            font-weight: var(--tm-font-semibold);
+        }
+
+        /* Trust Badges */
+        .trust-badges {
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-5);
+            box-shadow: var(--tm-shadow-lg);
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-4);
+            padding: var(--tm-space-4) 0;
+            border-bottom: 1px solid var(--tm-gray-100);
+        }
+
+        .trust-item:last-child {
+            border: none;
+        }
+
+        .trust-icon {
+            font-size: 24px;
+            color: var(--tm-secondary);
+        }
+
+        .trust-text {
+            flex: 1;
+        }
+
+        .trust-title {
+            font-weight: var(--tm-font-semibold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .trust-desc {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .schedule-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .schedule-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .service-types {
+                grid-template-columns: 1fr;
+            }
+
+            .time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .quote-badge {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body style="background: var(--tm-gray-50);">
+    <!-- Header -->
+    <header class="schedule-header">
+        <div class="tm-container">
+            <div class="header-inner">
+                <a href="/" class="logo">
+                    <span class="logo-icon">$</span>
+                    <span>ThriftyMobile</span>
+                </a>
+
+                <div class="quote-badge">
+                    <span class="quote-amount" id="quote-amount">$847</span>
+                    <div class="quote-timer">
+                        <span>&#9202;</span>
+                        <span id="expiry-timer">47:23:15</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="tm-container">
+        <div class="schedule-layout">
+            <!-- Schedule Form -->
+            <div class="schedule-main">
+                <h1 class="schedule-title">Schedule Your Service</h1>
+                <p class="schedule-subtitle">Choose how you want to get paid</p>
+
+                <!-- Urgency Banner -->
+                <div class="urgency-banner">
+                    &#9889; Schedule now! Only 3 pickup slots left today
+                </div>
+
+                <!-- Service Type Selection -->
+                <div class="service-types">
+                    <div class="service-card" data-service="pickup">
+                        <div class="service-icon">&#128663;</div>
+                        <div class="service-name">We Come to You</div>
+                        <div class="service-desc">Free doorstep pickup</div>
+                        <span class="service-badge">SAME DAY</span>
+                    </div>
+
+                    <div class="service-card" data-service="dropoff">
+                        <div class="service-icon">&#128205;</div>
+                        <div class="service-name">Drop Off</div>
+                        <div class="service-desc">Bring to our location</div>
+                        <span class="service-badge service-badge-accent">+$25 BONUS</span>
+                    </div>
+
+                    <div class="service-card" data-service="meetup">
+                        <div class="service-icon">&#9749;</div>
+                        <div class="service-name">Meet Locally</div>
+                        <div class="service-desc">Starbucks, mall, etc.</div>
+                        <span class="service-badge">FLEXIBLE</span>
+                    </div>
+
+                    <div class="service-card" data-service="ship">
+                        <div class="service-icon">&#128230;</div>
+                        <div class="service-name">Ship It</div>
+                        <div class="service-desc">Free prepaid label</div>
+                        <span class="service-badge">NATIONWIDE</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Content Boxes -->
+                <div class="dynamic-box dynamic-pickup" id="pickup-box">
+                    <span class="dynamic-icon">&#10004;</span>
+                    <div class="dynamic-content">
+                        <h3>Great Choice! Free Pickup Available</h3>
+                        <p>We'll come to you anywhere in St. Louis metro area</p>
+                    </div>
+                </div>
+
+                <div class="dynamic-box dynamic-shipping" id="shipping-box">
+                    <span class="dynamic-icon">&#128238;</span>
+                    <div class="dynamic-content">
+                        <h3>Free Shipping Label Ready</h3>
+                        <p>Print at home or we'll mail it to you</p>
+                    </div>
+                </div>
+
+                <!-- Calendar Section -->
+                <div class="calendar-section">
+                    <div class="calendar-header">
+                        <h2 class="calendar-title">Select Date & Time</h2>
+                        <span class="spots-badge">&#128293; Only 2 spots left today!</span>
+                    </div>
+
+                    <div class="date-selector">
+                        <div class="date-pill urgent selected" data-date="today">
+                            <div class="date-day">Today</div>
+                            <div class="date-date">Dec 15</div>
+                        </div>
+                        <div class="date-pill" data-date="tomorrow">
+                            <div class="date-day">Tomorrow</div>
+                            <div class="date-date">Dec 16</div>
+                        </div>
+                        <div class="date-pill" data-date="day3">
+                            <div class="date-day">Tuesday</div>
+                            <div class="date-date">Dec 17</div>
+                        </div>
+                        <div class="date-pill" data-date="day4">
+                            <div class="date-day">Wednesday</div>
+                            <div class="date-date">Dec 18</div>
+                        </div>
+                    </div>
+
+                    <h3 class="time-slots-title">Available Time Slots</h3>
+                    <div class="time-slots">
+                        <div class="time-slot" data-time="9:00">
+                            <div class="time-slot-time">9:00 AM</div>
+                            <div class="time-slot-status">Available</div>
+                        </div>
+                        <div class="time-slot unavailable">
+                            <div class="time-slot-time">10:00 AM</div>
+                            <div class="time-slot-status">Booked</div>
+                        </div>
+                        <div class="time-slot" data-time="11:00">
+                            <div class="time-slot-time">11:00 AM</div>
+                            <div class="time-slot-status">Available</div>
+                        </div>
+                        <div class="time-slot" data-time="12:00">
+                            <div class="time-slot-time">12:00 PM</div>
+                            <div class="time-slot-status">1 spot left</div>
+                        </div>
+                        <div class="time-slot" data-time="14:00">
+                            <div class="time-slot-time">2:00 PM</div>
+                            <div class="time-slot-status">Available</div>
+                        </div>
+                        <div class="time-slot" data-time="15:00">
+                            <div class="time-slot-time">3:00 PM</div>
+                            <div class="time-slot-status">Available</div>
+                        </div>
+                        <div class="time-slot unavailable">
+                            <div class="time-slot-time">4:00 PM</div>
+                            <div class="time-slot-status">Booked</div>
+                        </div>
+                        <div class="time-slot" data-time="17:00">
+                            <div class="time-slot-time">5:00 PM</div>
+                            <div class="time-slot-status">Last slot!</div>
+                        </div>
+                        <div class="time-slot" data-time="18:00">
+                            <div class="time-slot-time">6:00 PM</div>
+                            <div class="time-slot-status">Available</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Form -->
+                <div class="location-form" id="location-form">
+                    <h2 class="form-title">Service Location</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="tm-label">Street Address</label>
+                            <input type="text" class="tm-input" placeholder="123 Main Street" id="address">
+                        </div>
+                        <div class="form-group">
+                            <label class="tm-label">Apartment/Suite (Optional)</label>
+                            <input type="text" class="tm-input" placeholder="Apt 4B" id="apt">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="tm-label">City, State, ZIP</label>
+                        <input type="text" class="tm-input" placeholder="St. Louis, MO 63101" id="city-zip">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="tm-label">Special Instructions</label>
+                        <textarea class="tm-input" rows="3" placeholder="Gate code, parking instructions, etc." id="instructions"></textarea>
+                    </div>
+                </div>
+
+                <button class="tm-btn tm-btn-secondary tm-btn-full tm-btn-lg" onclick="confirmSchedule()">
+                    Confirm Appointment &rarr;
+                </button>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="schedule-sidebar">
+                <!-- Quote Summary -->
+                <div class="quote-summary">
+                    <div class="summary-header">
+                        <h3 class="summary-title">Your Quote</h3>
+                        <div class="device-info">iPhone 14 Pro Max &bull; 256GB</div>
+                    </div>
+
+                    <div class="price-display">
+                        <div class="price-label">Guaranteed Price</div>
+                        <div class="price-value">$847</div>
+                    </div>
+
+                    <div class="summary-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Condition:</span>
+                            <span class="detail-value">Good</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Quote ID:</span>
+                            <span class="detail-value">QT-A7B9C3</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expires:</span>
+                            <span class="detail-value">Tomorrow 3PM</span>
+                        </div>
+                    </div>
+
+                    <button class="tm-btn tm-btn-primary tm-btn-full">
+                        &#128172; Text Me Updates
+                    </button>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="trust-badges">
+                    <div class="trust-item">
+                        <span class="trust-icon">&#128737;</span>
+                        <div class="trust-text">
+                            <div class="trust-title">Price Guaranteed</div>
+                            <div class="trust-desc">Locked for 48 hours</div>
+                        </div>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">&#128181;</span>
+                        <div class="trust-text">
+                            <div class="trust-title">Instant Payment</div>
+                            <div class="trust-desc">Cash on the spot</div>
+                        </div>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">&#128274;</span>
+                        <div class="trust-text">
+                            <div class="trust-title">Data Secure</div>
+                            <div class="trust-desc">Military-grade wipe</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        // State
+        let selectedService = null;
+        let selectedDate = 'today';
+        let selectedTime = null;
+
+        // Service card selection
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedService = this.dataset.service;
+
+                // Show/hide dynamic boxes
+                const pickupBox = document.getElementById('pickup-box');
+                const shippingBox = document.getElementById('shipping-box');
+
+                pickupBox.classList.remove('show');
+                shippingBox.classList.remove('show');
+
+                if (selectedService === 'pickup' || selectedService === 'meetup') {
+                    pickupBox.classList.add('show');
+                } else if (selectedService === 'ship') {
+                    shippingBox.classList.add('show');
+                }
+
+                // Show/hide location form
+                const locationForm = document.getElementById('location-form');
+                if (selectedService === 'ship') {
+                    locationForm.style.display = 'none';
+                } else {
+                    locationForm.style.display = 'block';
+                }
+            });
+        });
+
+        // Date selection
+        document.querySelectorAll('.date-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedDate = this.dataset.date;
+            });
+        });
+
+        // Time slot selection
+        document.querySelectorAll('.time-slot:not(.unavailable)').forEach(slot => {
+            slot.addEventListener('click', function() {
+                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedTime = this.dataset.time;
+            });
+        });
+
+        // Expiry timer
+        function updateExpiryTimer() {
+            const now = new Date();
+            const expiry = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48 hours from now
+
+            function update() {
+                const diff = expiry - new Date();
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('expiry-timer').textContent =
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            update();
+            setInterval(update, 1000);
+        }
+        updateExpiryTimer();
+
+        // Confirm schedule
+        function confirmSchedule() {
+            const address = document.getElementById('address').value;
+
+            if (!selectedService) {
+                alert('Please select a service type');
+                return;
+            }
+
+            if (!selectedTime) {
+                alert('Please select a time slot');
+                return;
+            }
+
+            if (selectedService !== 'ship' && !address) {
+                alert('Please enter your address');
+                return;
+            }
+
+            // Success - redirect to tracking page
+            window.location.href = '/track.html?quote=QT-A7B9C3';
+        }
+
+        // Auto-save form data
+        document.querySelectorAll('.tm-input').forEach(input => {
+            input.addEventListener('input', function() {
+                localStorage.setItem('schedule_' + this.id, this.value);
+            });
+
+            // Restore saved values
+            const saved = localStorage.getItem('schedule_' + input.id);
+            if (saved) {
+                input.value = saved;
+            }
+        });
+    </script>
+</body>
+</html>

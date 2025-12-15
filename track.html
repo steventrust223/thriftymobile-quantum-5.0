@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Quote | ThriftyMobile</title>
+    <meta name="description" content="Track the status of your quote and pickup appointment.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="css/design-system.css">
+
+    <style>
+        /* Track Page Specific Styles */
+        body {
+            background: var(--tm-gradient-primary);
+            min-height: 100vh;
+        }
+
+        .track-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--tm-space-10) var(--tm-space-6);
+        }
+
+        .track-card {
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-3xl);
+            padding: var(--tm-space-10);
+            box-shadow: var(--tm-shadow-2xl);
+        }
+
+        /* Header */
+        .track-header {
+            text-align: center;
+            margin-bottom: var(--tm-space-10);
+        }
+
+        .track-title {
+            font-size: var(--tm-text-4xl);
+            font-weight: var(--tm-font-extrabold);
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .quote-id {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-lg);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            margin: var(--tm-space-12) 0;
+        }
+
+        .timeline-track {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--tm-gray-200);
+            z-index: 0;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            height: 4px;
+            background: var(--tm-gradient-secondary);
+            z-index: 1;
+            transition: width var(--tm-duration-500);
+        }
+
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline-step {
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-dot {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--tm-radius-full);
+            background: var(--tm-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--tm-space-3);
+            font-size: 20px;
+            color: var(--tm-gray-500);
+            font-weight: var(--tm-font-bold);
+            transition: all var(--tm-duration-300);
+        }
+
+        .timeline-step.completed .step-dot {
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+        }
+
+        .timeline-step.active .step-dot {
+            background: var(--tm-gradient-accent);
+            color: var(--tm-white);
+            transform: scale(1.1);
+            animation: tm-pulse 2s infinite;
+            box-shadow: var(--tm-shadow-accent);
+        }
+
+        .timeline-step.pending .step-dot {
+            opacity: 0.5;
+        }
+
+        .step-label {
+            font-weight: var(--tm-font-semibold);
+            margin-bottom: var(--tm-space-1);
+            font-size: var(--tm-text-sm);
+        }
+
+        .step-time {
+            font-size: var(--tm-text-xs);
+            color: var(--tm-gray-500);
+        }
+
+        .timeline-step.active .step-time {
+            color: var(--tm-accent-600);
+            font-weight: var(--tm-font-semibold);
+        }
+
+        /* Status Card */
+        .status-card {
+            background: var(--tm-accent-50);
+            border: 1px solid var(--tm-accent-200);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-6);
+            margin-bottom: var(--tm-space-8);
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-5);
+        }
+
+        .status-icon {
+            font-size: 48px;
+        }
+
+        .status-content {
+            flex: 1;
+        }
+
+        .status-title {
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .status-desc {
+            color: var(--tm-gray-600);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .status-actions {
+            display: flex;
+            gap: var(--tm-space-3);
+        }
+
+        /* Messages Section */
+        .messages-section {
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .messages-title {
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-5);
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--tm-space-4);
+            margin-bottom: var(--tm-space-5);
+        }
+
+        .message-item {
+            background: var(--tm-gray-50);
+            border-radius: var(--tm-radius-xl);
+            padding: var(--tm-space-5);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .message-sender {
+            font-weight: var(--tm-font-semibold);
+        }
+
+        .message-time {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+        }
+
+        .message-text {
+            color: var(--tm-gray-700);
+        }
+
+        .message-input-wrapper {
+            display: flex;
+            gap: var(--tm-space-3);
+        }
+
+        .message-input {
+            flex: 1;
+        }
+
+        /* Action Cards */
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--tm-space-5);
+            margin-top: var(--tm-space-8);
+        }
+
+        .action-card {
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            padding: var(--tm-space-6);
+            text-align: center;
+            transition: all var(--tm-duration-200);
+        }
+
+        .action-card:hover {
+            border-color: var(--tm-primary-300);
+            box-shadow: var(--tm-shadow-lg);
+        }
+
+        .action-icon {
+            font-size: 36px;
+            margin-bottom: var(--tm-space-3);
+        }
+
+        .action-title {
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .action-desc {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        /* Quote Summary Sidebar */
+        .quote-summary {
+            background: var(--tm-primary-50);
+            border: 1px solid var(--tm-primary-200);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-6);
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .summary-title {
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--tm-space-2) 0;
+            font-size: var(--tm-text-sm);
+        }
+
+        .summary-label {
+            color: var(--tm-gray-600);
+        }
+
+        .summary-value {
+            font-weight: var(--tm-font-semibold);
+        }
+
+        .summary-price {
+            text-align: center;
+            padding: var(--tm-space-6) 0;
+            border-top: 1px solid var(--tm-primary-200);
+            border-bottom: 1px solid var(--tm-primary-200);
+            margin: var(--tm-space-4) 0;
+        }
+
+        .price-label {
+            font-size: var(--tm-text-sm);
+            color: var(--tm-gray-600);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .price-value {
+            font-size: var(--tm-text-4xl);
+            font-weight: var(--tm-font-black);
+            background: var(--tm-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Back to Home */
+        .back-home {
+            text-align: center;
+            margin-top: var(--tm-space-8);
+            padding-top: var(--tm-space-6);
+            border-top: 1px solid var(--tm-gray-200);
+        }
+
+        .back-link {
+            color: var(--tm-gray-500);
+            text-decoration: none;
+            font-size: var(--tm-text-sm);
+            transition: color var(--tm-duration-200);
+        }
+
+        .back-link:hover {
+            color: var(--tm-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .track-card {
+                padding: var(--tm-space-6);
+            }
+
+            .timeline-steps {
+                flex-wrap: wrap;
+                gap: var(--tm-space-4);
+            }
+
+            .timeline-step {
+                flex: 0 0 calc(33.333% - 16px);
+            }
+
+            .timeline-track,
+            .timeline-progress {
+                display: none;
+            }
+
+            .status-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .status-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .message-input-wrapper {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="track-container">
+        <div class="track-card">
+            <!-- Header -->
+            <div class="track-header">
+                <h1 class="track-title">Track Your Quote</h1>
+                <p class="quote-id">Quote ID: <strong id="quote-id">QT-A7B9C3</strong></p>
+            </div>
+
+            <!-- Quote Summary -->
+            <div class="quote-summary">
+                <h3 class="summary-title">
+                    <span>&#128241;</span>
+                    <span>Quote Details</span>
+                </h3>
+                <div class="summary-row">
+                    <span class="summary-label">Device:</span>
+                    <span class="summary-value" id="device-name">iPhone 14 Pro Max</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Storage:</span>
+                    <span class="summary-value">256GB</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Condition:</span>
+                    <span class="summary-value">Good</span>
+                </div>
+                <div class="summary-price">
+                    <div class="price-label">Guaranteed Price</div>
+                    <div class="price-value" id="quote-price">$847</div>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Valid Until:</span>
+                    <span class="summary-value" id="expiry-date">Dec 17, 2025 3PM</span>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline">
+                <div class="timeline-track"></div>
+                <div class="timeline-progress" id="timeline-progress" style="width: 40%"></div>
+
+                <div class="timeline-steps">
+                    <div class="timeline-step completed">
+                        <div class="step-dot">&#10003;</div>
+                        <div class="step-label">Quote Created</div>
+                        <div class="step-time">Dec 15, 2:30 PM</div>
+                    </div>
+
+                    <div class="timeline-step completed">
+                        <div class="step-dot">&#10003;</div>
+                        <div class="step-label">Scheduled</div>
+                        <div class="step-time">Dec 15, 2:45 PM</div>
+                    </div>
+
+                    <div class="timeline-step active">
+                        <div class="step-dot">&#9202;</div>
+                        <div class="step-label">Pickup Today</div>
+                        <div class="step-time">4:00 PM</div>
+                    </div>
+
+                    <div class="timeline-step pending">
+                        <div class="step-dot">4</div>
+                        <div class="step-label">Inspection</div>
+                        <div class="step-time">Pending</div>
+                    </div>
+
+                    <div class="timeline-step pending">
+                        <div class="step-dot">&#128181;</div>
+                        <div class="step-label">Payment</div>
+                        <div class="step-time">Pending</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Status -->
+            <div class="status-card">
+                <div class="status-icon">&#128663;</div>
+                <div class="status-content">
+                    <h3 class="status-title">Your Pickup is Scheduled!</h3>
+                    <p class="status-desc">Our team member Mike will arrive between 4:00-5:00 PM today</p>
+                    <div class="status-actions">
+                        <button class="tm-btn tm-btn-primary" onclick="callDriver()">
+                            &#128222; Call Mike
+                        </button>
+                        <button class="tm-btn tm-btn-outline-primary" onclick="shareLocation()">
+                            &#128205; Share Location
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="messages-section">
+                <h3 class="messages-title">Updates & Messages</h3>
+
+                <div class="message-list">
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="message-sender">System</span>
+                            <span class="message-time">2:45 PM</span>
+                        </div>
+                        <p class="message-text">Pickup confirmed! Mike will text you 30 minutes before arrival.</p>
+                    </div>
+
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="message-sender">Mike (Driver)</span>
+                            <span class="message-time">3:30 PM</span>
+                        </div>
+                        <p class="message-text">Hi! I'm Mike from ThriftyMobile. I'll be there around 4 PM. See you soon!</p>
+                    </div>
+                </div>
+
+                <div class="message-input-wrapper">
+                    <textarea class="tm-input message-input" rows="2" placeholder="Send a message..."></textarea>
+                    <button class="tm-btn tm-btn-primary">Send</button>
+                </div>
+            </div>
+
+            <!-- Action Cards -->
+            <div class="action-cards">
+                <div class="action-card">
+                    <div class="action-icon">&#128197;</div>
+                    <h4 class="action-title">Need to Reschedule?</h4>
+                    <p class="action-desc">Change your appointment time</p>
+                    <button class="tm-btn tm-btn-outline-primary tm-btn-sm" onclick="reschedule()">
+                        Reschedule
+                    </button>
+                </div>
+
+                <div class="action-card">
+                    <div class="action-icon">&#128196;</div>
+                    <h4 class="action-title">View Contract</h4>
+                    <p class="action-desc">Download your agreement</p>
+                    <button class="tm-btn tm-btn-outline-primary tm-btn-sm" onclick="downloadContract()">
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Back to Home -->
+            <div class="back-home">
+                <a href="/" class="back-link">&larr; Back to ThriftyMobile</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get quote ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const quoteId = urlParams.get('quote') || 'QT-A7B9C3';
+        document.getElementById('quote-id').textContent = quoteId;
+
+        // Try to load stored quote data
+        const storedQuote = sessionStorage.getItem('quote');
+        if (storedQuote) {
+            const quote = JSON.parse(storedQuote);
+            if (quote.model) {
+                document.getElementById('device-name').textContent = quote.model;
+            }
+            if (quote.finalOffer) {
+                document.getElementById('quote-price').textContent = '$' + quote.finalOffer;
+            }
+        }
+
+        // Action functions
+        function callDriver() {
+            window.location.href = 'tel:+1-555-123-4567';
+        }
+
+        function shareLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                    window.open(mapsUrl, '_blank');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser');
+            }
+        }
+
+        function reschedule() {
+            window.location.href = '/schedule.html?quote=' + quoteId;
+        }
+
+        function downloadContract() {
+            alert('Contract PDF will be downloaded');
+            // In production, this would trigger a PDF download
+        }
+
+        // Simulate real-time updates
+        function addSystemMessage(text) {
+            const messageList = document.querySelector('.message-list');
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+            const messageHtml = `
+                <div class="message-item" style="animation: tm-fade-up 0.3s var(--tm-ease-out);">
+                    <div class="message-header">
+                        <span class="message-sender">System</span>
+                        <span class="message-time">${time}</span>
+                    </div>
+                    <p class="message-text">${text}</p>
+                </div>
+            `;
+
+            messageList.insertAdjacentHTML('beforeend', messageHtml);
+        }
+
+        // Auto-refresh status every 30 seconds
+        setInterval(function() {
+            // In production, this would fetch real updates from API
+            console.log('Checking for updates...');
+        }, 30000);
+    </script>
+</body>
+</html>

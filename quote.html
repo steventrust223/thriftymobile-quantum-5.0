@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Instant Cash Quote | 60 Seconds to Money | ThriftyMobile</title>
+    <meta name="description" content="Find out exactly what your device is worth. Instant quotes, guaranteed prices, same-day payment.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="css/design-system.css">
+
+    <style>
+        /* Quote Wizard Specific Styles */
+        body {
+            background: var(--tm-gradient-hero);
+            min-height: 100vh;
+        }
+
+        /* Progress Header */
+        .progress-header {
+            background: var(--tm-white);
+            padding: var(--tm-space-5) 0;
+            box-shadow: var(--tm-shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: var(--tm-z-sticky);
+        }
+
+        .progress-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-3);
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-extrabold);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--tm-gradient-primary);
+            border-radius: var(--tm-radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tm-white);
+            font-size: 18px;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            gap: var(--tm-space-2);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 140px;
+            position: relative;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 60%;
+            width: 100%;
+            height: 2px;
+            background: var(--tm-gray-200);
+            z-index: -1;
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            background: var(--tm-gray-200);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--tm-font-bold);
+            font-size: var(--tm-text-sm);
+            color: var(--tm-gray-500);
+            margin-bottom: var(--tm-space-2);
+            transition: all var(--tm-duration-300);
+        }
+
+        .progress-step.active .step-circle {
+            background: var(--tm-gradient-primary);
+            color: var(--tm-white);
+            transform: scale(1.15);
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        .progress-step.completed .step-circle {
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+        }
+
+        .step-label {
+            font-size: var(--tm-text-xs);
+            color: var(--tm-gray-500);
+            text-align: center;
+        }
+
+        .progress-step.active .step-label {
+            color: var(--tm-primary);
+            font-weight: var(--tm-font-semibold);
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--tm-gray-200);
+            border-radius: var(--tm-radius-full);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--tm-gradient-primary);
+            border-radius: var(--tm-radius-full);
+            transition: width var(--tm-duration-500);
+        }
+
+        /* Wizard Container */
+        .wizard-container {
+            max-width: 800px;
+            margin: var(--tm-space-10) auto;
+            padding: 0 var(--tm-space-6);
+        }
+
+        .wizard-card {
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-3xl);
+            padding: var(--tm-space-10);
+            box-shadow: var(--tm-shadow-2xl);
+            position: relative;
+        }
+
+        .corner-badge {
+            position: absolute;
+            top: -12px;
+            right: 24px;
+            background: var(--tm-gradient-accent);
+            color: var(--tm-white);
+            padding: var(--tm-space-2) var(--tm-space-4);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-xs);
+            font-weight: var(--tm-font-bold);
+            text-transform: uppercase;
+            box-shadow: var(--tm-shadow-accent);
+        }
+
+        /* Step Content */
+        .step-content {
+            display: none;
+            animation: tm-fade-up 0.4s var(--tm-ease-out);
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .step-title {
+            font-size: var(--tm-text-3xl);
+            font-weight: var(--tm-font-extrabold);
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .step-subtitle {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-lg);
+        }
+
+        /* Device Type Grid */
+        .device-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--tm-space-5);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .device-type-card {
+            border: 3px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-8) var(--tm-space-5);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+            position: relative;
+            background: var(--tm-white);
+        }
+
+        .device-type-card:hover {
+            border-color: var(--tm-primary-300);
+            transform: translateY(-4px);
+            box-shadow: var(--tm-shadow-lg);
+        }
+
+        .device-type-card.selected {
+            border-color: var(--tm-primary);
+            background: var(--tm-primary-50);
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        .device-type-card.selected::after {
+            content: '&#10003;';
+            position: absolute;
+            top: var(--tm-space-3);
+            right: var(--tm-space-3);
+            width: 28px;
+            height: 28px;
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--tm-font-bold);
+        }
+
+        .device-icon {
+            font-size: 48px;
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .device-name {
+            font-size: var(--tm-text-lg);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .device-desc {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+        }
+
+        /* Brand Grid */
+        .brand-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--tm-space-4);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .brand-card {
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            padding: var(--tm-space-5);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+            font-weight: var(--tm-font-semibold);
+        }
+
+        .brand-card:hover {
+            border-color: var(--tm-primary-300);
+            transform: scale(1.03);
+        }
+
+        .brand-card.selected {
+            background: var(--tm-gradient-primary);
+            border-color: var(--tm-primary);
+            color: var(--tm-white);
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        /* Model Search */
+        .model-search-container {
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .model-search {
+            width: 100%;
+            padding: var(--tm-space-4) var(--tm-space-4) var(--tm-space-4) var(--tm-space-12);
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            font-size: var(--tm-text-lg);
+            transition: all var(--tm-duration-200);
+        }
+
+        .model-search:focus {
+            outline: none;
+            border-color: var(--tm-primary);
+            box-shadow: 0 0 0 4px var(--tm-primary-100);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--tm-space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--tm-gray-400);
+            font-size: 20px;
+        }
+
+        .model-suggestions {
+            background: var(--tm-white);
+            border: 1px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            margin-top: var(--tm-space-2);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: var(--tm-shadow-xl);
+        }
+
+        .model-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--tm-space-4);
+            cursor: pointer;
+            transition: background var(--tm-duration-150);
+        }
+
+        .suggestion-item:hover {
+            background: var(--tm-gray-50);
+        }
+
+        .suggestion-price {
+            color: var(--tm-secondary);
+            font-weight: var(--tm-font-bold);
+        }
+
+        .popular-models {
+            margin-top: var(--tm-space-6);
+        }
+
+        .popular-title {
+            font-weight: var(--tm-font-semibold);
+            margin-bottom: var(--tm-space-3);
+            color: var(--tm-gray-700);
+        }
+
+        .model-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--tm-space-2);
+        }
+
+        .model-pill {
+            padding: var(--tm-space-2) var(--tm-space-4);
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-medium);
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+        }
+
+        .model-pill:hover {
+            border-color: var(--tm-primary);
+            background: var(--tm-primary);
+            color: var(--tm-white);
+        }
+
+        /* Condition Grid */
+        .condition-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--tm-space-5);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .condition-card {
+            border: 3px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-6);
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+            position: relative;
+        }
+
+        .condition-card:hover {
+            border-color: var(--tm-primary-300);
+            transform: translateY(-2px);
+            box-shadow: var(--tm-shadow-lg);
+        }
+
+        .condition-card.selected {
+            border-color: var(--tm-secondary);
+            background: var(--tm-secondary-50);
+        }
+
+        .condition-header {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-4);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .condition-emoji {
+            font-size: 36px;
+        }
+
+        .condition-info {
+            flex: 1;
+        }
+
+        .condition-name {
+            font-size: var(--tm-text-lg);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .condition-percentage {
+            color: var(--tm-secondary);
+            font-weight: var(--tm-font-semibold);
+            font-size: var(--tm-text-sm);
+        }
+
+        .condition-criteria {
+            font-size: var(--tm-text-sm);
+            color: var(--tm-gray-600);
+        }
+
+        .condition-criteria li {
+            padding: var(--tm-space-1) 0;
+            padding-left: var(--tm-space-5);
+            position: relative;
+        }
+
+        .condition-criteria li::before {
+            content: '&#10003;';
+            position: absolute;
+            left: 0;
+            color: var(--tm-secondary);
+        }
+
+        /* Live Price Calculator */
+        .price-calculator {
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-6);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .price-title {
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .price-line {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--tm-space-2) 0;
+            font-size: var(--tm-text-base);
+        }
+
+        .price-line.total {
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+            padding-top: var(--tm-space-4);
+            margin-top: var(--tm-space-2);
+            font-size: var(--tm-text-2xl);
+            font-weight: var(--tm-font-bold);
+        }
+
+        /* Contact Form */
+        .contact-form {
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--tm-space-4);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Final Offer */
+        .offer-presentation {
+            text-align: center;
+            padding: var(--tm-space-8) 0;
+        }
+
+        .offer-icon {
+            font-size: 64px;
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .offer-amount {
+            font-size: var(--tm-text-7xl);
+            font-weight: var(--tm-font-black);
+            background: var(--tm-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--tm-space-4);
+            animation: tm-scale-in 0.5s var(--tm-ease-bounce);
+        }
+
+        .offer-comparison {
+            background: var(--tm-secondary-50);
+            border: 1px solid var(--tm-secondary-200);
+            border-radius: var(--tm-radius-xl);
+            padding: var(--tm-space-5);
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--tm-space-2) 0;
+            font-size: var(--tm-text-lg);
+        }
+
+        .comparison-item.highlight {
+            color: var(--tm-secondary-600);
+            font-weight: var(--tm-font-bold);
+        }
+
+        .offer-actions {
+            display: flex;
+            flex-direction: column;
+            gap: var(--tm-space-4);
+        }
+
+        .offer-info {
+            background: var(--tm-accent-50);
+            border: 1px solid var(--tm-accent-200);
+            border-radius: var(--tm-radius-xl);
+            padding: var(--tm-space-5);
+            margin-top: var(--tm-space-6);
+            text-align: left;
+        }
+
+        .offer-info h3 {
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-3);
+        }
+
+        .offer-info ol {
+            padding-left: var(--tm-space-5);
+            color: var(--tm-gray-700);
+        }
+
+        .offer-info li {
+            padding: var(--tm-space-1) 0;
+        }
+
+        /* Navigation */
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--tm-space-8);
+            padding-top: var(--tm-space-6);
+            border-top: 1px solid var(--tm-gray-200);
+        }
+
+        .nav-btn-back {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .nav-btn-back.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Trust Strip */
+        .trust-strip {
+            display: flex;
+            justify-content: center;
+            gap: var(--tm-space-6);
+            padding: var(--tm-space-6);
+            background: var(--tm-gray-50);
+            border-radius: var(--tm-radius-xl);
+            margin-top: var(--tm-space-6);
+        }
+
+        /* Social Proof */
+        .social-proof {
+            background: var(--tm-accent-50);
+            border: 1px solid var(--tm-accent-200);
+            border-radius: var(--tm-radius-lg);
+            padding: var(--tm-space-4);
+            text-align: center;
+            margin-top: var(--tm-space-6);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .wizard-card {
+                padding: var(--tm-space-6);
+            }
+
+            .device-type-grid,
+            .brand-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .condition-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                display: none;
+            }
+
+            .offer-amount {
+                font-size: var(--tm-text-5xl);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Header -->
+    <header class="progress-header">
+        <div class="tm-container">
+            <div class="progress-inner">
+                <a href="/" class="logo">
+                    <span class="logo-icon">$</span>
+                    <span>ThriftyMobile</span>
+                </a>
+                <a href="tel:1-800-CASH-NOW" class="tm-btn tm-btn-ghost tm-hide-mobile">
+                    &#128222; 1-800-CASH-NOW
+                </a>
+            </div>
+
+            <div class="progress-steps">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <span class="step-label">Device</span>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <span class="step-label">Brand</span>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <span class="step-label">Model</span>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <span class="step-label">Condition</span>
+                </div>
+                <div class="progress-step" data-step="5">
+                    <div class="step-circle">5</div>
+                    <span class="step-label">Contact</span>
+                </div>
+                <div class="progress-step" data-step="6">
+                    <div class="step-circle">&#10003;</div>
+                    <span class="step-label">Offer</span>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 16.66%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Wizard -->
+    <main class="wizard-container">
+        <div class="wizard-card">
+            <span class="corner-badge">Best Price Guarantee</span>
+
+            <!-- Step 1: Device Type -->
+            <div class="step-content active" data-step="1">
+                <div class="step-header">
+                    <h2 class="step-title">What are you selling today?</h2>
+                    <p class="step-subtitle">Select your device type to get started</p>
+                </div>
+
+                <div class="device-type-grid">
+                    <div class="device-type-card" data-device="phone">
+                        <div class="device-icon">&#128241;</div>
+                        <div class="device-name">Smartphone</div>
+                        <div class="device-desc">iPhone, Samsung, Google</div>
+                    </div>
+                    <div class="device-type-card" data-device="laptop">
+                        <div class="device-icon">&#128187;</div>
+                        <div class="device-name">Laptop</div>
+                        <div class="device-desc">MacBook, Windows, Chrome</div>
+                    </div>
+                    <div class="device-type-card" data-device="tablet">
+                        <div class="device-icon">&#128218;</div>
+                        <div class="device-name">Tablet</div>
+                        <div class="device-desc">iPad, Galaxy Tab, Surface</div>
+                    </div>
+                </div>
+
+                <div class="social-proof">
+                    <strong>&#128293; Hot Right Now:</strong> iPhone 15 Pro Max selling for $1,150 average
+                </div>
+            </div>
+
+            <!-- Step 2: Brand -->
+            <div class="step-content" data-step="2">
+                <div class="step-header">
+                    <h2 class="step-title">Select your brand</h2>
+                    <p class="step-subtitle">Choose the manufacturer</p>
+                </div>
+
+                <div class="brand-grid" id="brand-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Step 3: Model -->
+            <div class="step-content" data-step="3">
+                <div class="step-header">
+                    <h2 class="step-title">Which model do you have?</h2>
+                    <p class="step-subtitle">Start typing or select from popular models</p>
+                </div>
+
+                <div class="model-search-container">
+                    <div class="search-wrapper">
+                        <span class="search-icon">&#128269;</span>
+                        <input type="text" class="model-search" placeholder="e.g., iPhone 15 Pro Max" id="model-search">
+                    </div>
+                    <div class="model-suggestions" id="model-suggestions"></div>
+                </div>
+
+                <div class="popular-models">
+                    <div class="popular-title">Popular Models</div>
+                    <div class="model-pills" id="model-pills">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Condition -->
+            <div class="step-content" data-step="4">
+                <div class="step-header">
+                    <h2 class="step-title">How's the condition?</h2>
+                    <p class="step-subtitle">Be honest - we'll verify when we receive it</p>
+                </div>
+
+                <div class="condition-grid">
+                    <div class="condition-card" data-condition="likenew" data-multiplier="0.95">
+                        <div class="condition-header">
+                            <div class="condition-emoji">&#10024;</div>
+                            <div class="condition-info">
+                                <div class="condition-name">Like New</div>
+                                <div class="condition-percentage">90-100% value</div>
+                            </div>
+                        </div>
+                        <ul class="condition-criteria">
+                            <li>No visible scratches or wear</li>
+                            <li>Perfect screen, no cracks</li>
+                            <li>All functions work perfectly</li>
+                        </ul>
+                    </div>
+
+                    <div class="condition-card" data-condition="good" data-multiplier="0.80">
+                        <div class="condition-header">
+                            <div class="condition-emoji">&#128077;</div>
+                            <div class="condition-info">
+                                <div class="condition-name">Good</div>
+                                <div class="condition-percentage">75-89% value</div>
+                            </div>
+                        </div>
+                        <ul class="condition-criteria">
+                            <li>Minor scratches acceptable</li>
+                            <li>Screen has no cracks</li>
+                            <li>All functions work</li>
+                        </ul>
+                    </div>
+
+                    <div class="condition-card" data-condition="fair" data-multiplier="0.60">
+                        <div class="condition-header">
+                            <div class="condition-emoji">&#128528;</div>
+                            <div class="condition-info">
+                                <div class="condition-name">Fair</div>
+                                <div class="condition-percentage">50-74% value</div>
+                            </div>
+                        </div>
+                        <ul class="condition-criteria">
+                            <li>Visible wear and scratches</li>
+                            <li>Minor screen cracks OK</li>
+                            <li>Core functions work</li>
+                        </ul>
+                    </div>
+
+                    <div class="condition-card" data-condition="poor" data-multiplier="0.35">
+                        <div class="condition-header">
+                            <div class="condition-emoji">&#128148;</div>
+                            <div class="condition-info">
+                                <div class="condition-name">Poor/Broken</div>
+                                <div class="condition-percentage">20-49% value</div>
+                            </div>
+                        </div>
+                        <ul class="condition-criteria">
+                            <li>Cracked screen or body</li>
+                            <li>Some functions don't work</li>
+                            <li>For parts or repair</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Live Price Calculator -->
+                <div class="price-calculator" id="price-calculator" style="display: none;">
+                    <div class="price-title">Your Quote So Far:</div>
+                    <div class="price-line">
+                        <span>Base Value:</span>
+                        <span id="base-value">$0</span>
+                    </div>
+                    <div class="price-line">
+                        <span>Condition Adjustment:</span>
+                        <span id="condition-value">$0</span>
+                    </div>
+                    <div class="price-line total">
+                        <span>Your Offer:</span>
+                        <span id="total-value">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Contact -->
+            <div class="step-content" data-step="5">
+                <div class="step-header">
+                    <h2 class="step-title">Almost done!</h2>
+                    <p class="step-subtitle">Where should we send your offer?</p>
+                </div>
+
+                <form class="contact-form" id="contact-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="tm-label">First Name</label>
+                            <input type="text" class="tm-input" id="first-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="tm-label">Last Name</label>
+                            <input type="text" class="tm-input" id="last-name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="tm-label">Email</label>
+                            <input type="email" class="tm-input" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="tm-label">Phone</label>
+                            <input type="tel" class="tm-input" id="phone" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="tm-label">ZIP Code</label>
+                            <input type="text" class="tm-input" id="zip" maxlength="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="tm-label">Preferred Payment</label>
+                            <select class="tm-input" id="payment">
+                                <option value="cash">Cash (Local Pickup)</option>
+                                <option value="zelle">Zelle</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="venmo">Venmo</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="trust-strip">
+                    <div class="tm-trust-item">
+                        <span class="tm-trust-icon">&#128274;</span>
+                        <span>SSL Encrypted</span>
+                    </div>
+                    <div class="tm-trust-item">
+                        <span class="tm-trust-icon">&#128737;</span>
+                        <span>Data Protected</span>
+                    </div>
+                    <div class="tm-trust-item">
+                        <span class="tm-trust-icon">&#10003;</span>
+                        <span>No Spam</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Final Offer -->
+            <div class="step-content" data-step="6">
+                <div class="offer-presentation">
+                    <div class="offer-icon">&#127881;</div>
+                    <h2 class="step-title">Your Instant Cash Offer!</h2>
+                    <div class="offer-amount" id="final-offer">$847</div>
+
+                    <div class="offer-comparison">
+                        <div class="comparison-item">
+                            <span>Verizon Trade-In:</span>
+                            <span id="verizon-price">$550</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span>Apple Trade-In:</span>
+                            <span id="apple-price">$580</span>
+                        </div>
+                        <div class="comparison-item highlight">
+                            <span>ThriftyMobile (You Save):</span>
+                            <span id="savings">+$267</span>
+                        </div>
+                    </div>
+
+                    <div class="offer-actions">
+                        <button class="tm-btn tm-btn-secondary tm-btn-full tm-btn-lg" onclick="acceptOffer()">
+                            &#128176; Accept Offer & Get Paid Today
+                        </button>
+                        <button class="tm-btn tm-btn-outline-primary tm-btn-full" onclick="emailQuote()">
+                            &#128231; Email Me This Quote
+                        </button>
+                        <button class="tm-btn tm-btn-outline-primary tm-btn-full" onclick="textQuote()">
+                            &#128172; Text Me This Quote
+                        </button>
+                    </div>
+
+                    <div class="offer-info">
+                        <h3>&#10003; What Happens Next?</h3>
+                        <ol>
+                            <li>Accept your offer (valid 48 hours)</li>
+                            <li>Choose pickup or shipping (both free)</li>
+                            <li>We verify your device (2 minutes)</li>
+                            <li>Get paid immediately!</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="wizard-nav">
+                <button class="tm-btn tm-btn-ghost nav-btn-back" id="btn-back" onclick="prevStep()">
+                    &larr; Back
+                </button>
+                <button class="tm-btn tm-btn-primary tm-btn-lg" id="btn-next" onclick="nextStep()" disabled>
+                    Next Step &rarr;
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Wizard State
+        const state = {
+            currentStep: 1,
+            totalSteps: 6,
+            deviceType: '',
+            brand: '',
+            model: '',
+            modelPrice: 0,
+            condition: '',
+            conditionMultiplier: 1,
+            contact: {},
+            finalOffer: 0
+        };
+
+        // Device Data
+        const deviceData = {
+            phone: {
+                brands: ['Apple', 'Samsung', 'Google', 'OnePlus', 'Motorola'],
+                models: {
+                    'Apple': [
+                        { name: 'iPhone 15 Pro Max', price: 1150 },
+                        { name: 'iPhone 15 Pro', price: 950 },
+                        { name: 'iPhone 15', price: 750 },
+                        { name: 'iPhone 14 Pro Max', price: 900 },
+                        { name: 'iPhone 14 Pro', price: 800 },
+                        { name: 'iPhone 14', price: 650 },
+                        { name: 'iPhone 13', price: 520 }
+                    ],
+                    'Samsung': [
+                        { name: 'Galaxy S24 Ultra', price: 950 },
+                        { name: 'Galaxy S24+', price: 750 },
+                        { name: 'Galaxy S24', price: 650 },
+                        { name: 'Galaxy S23 Ultra', price: 780 }
+                    ],
+                    'Google': [
+                        { name: 'Pixel 8 Pro', price: 700 },
+                        { name: 'Pixel 8', price: 550 },
+                        { name: 'Pixel 7 Pro', price: 500 }
+                    ]
+                }
+            },
+            laptop: {
+                brands: ['Apple', 'Dell', 'HP', 'Lenovo'],
+                models: {
+                    'Apple': [
+                        { name: 'MacBook Pro 16" M3', price: 2200 },
+                        { name: 'MacBook Pro 14" M3', price: 1800 },
+                        { name: 'MacBook Air M2', price: 1100 },
+                        { name: 'MacBook Air M1', price: 850 }
+                    ]
+                }
+            },
+            tablet: {
+                brands: ['Apple', 'Samsung', 'Microsoft'],
+                models: {
+                    'Apple': [
+                        { name: 'iPad Pro 12.9"', price: 900 },
+                        { name: 'iPad Pro 11"', price: 750 },
+                        { name: 'iPad Air', price: 520 },
+                        { name: 'iPad', price: 350 }
+                    ]
+                }
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Device type selection
+            document.querySelectorAll('.device-type-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.device-type-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    state.deviceType = this.dataset.device;
+                    enableNext();
+                });
+            });
+
+            // Condition selection
+            document.querySelectorAll('.condition-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.condition-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    state.condition = this.dataset.condition;
+                    state.conditionMultiplier = parseFloat(this.dataset.multiplier);
+                    updatePriceCalculation();
+                    enableNext();
+                });
+            });
+
+            // Pre-fill from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const device = urlParams.get('device');
+            if (device) {
+                document.getElementById('model-search').value = device;
+            }
+        });
+
+        function nextStep() {
+            if (state.currentStep < state.totalSteps) {
+                // Hide current
+                document.querySelector(`.step-content[data-step="${state.currentStep}"]`).classList.remove('active');
+                state.currentStep++;
+                // Show next
+                document.querySelector(`.step-content[data-step="${state.currentStep}"]`).classList.add('active');
+
+                updateProgress();
+                loadStepContent();
+
+                // Show back button
+                document.getElementById('btn-back').classList.add('show');
+
+                // Disable next until selection made
+                disableNext();
+
+                // Hide next on final step
+                if (state.currentStep === state.totalSteps) {
+                    document.getElementById('btn-next').style.display = 'none';
+                    calculateFinalOffer();
+                }
+            }
+        }
+
+        function prevStep() {
+            if (state.currentStep > 1) {
+                document.querySelector(`.step-content[data-step="${state.currentStep}"]`).classList.remove('active');
+                state.currentStep--;
+                document.querySelector(`.step-content[data-step="${state.currentStep}"]`).classList.add('active');
+
+                updateProgress();
+
+                // Hide back button on first step
+                if (state.currentStep === 1) {
+                    document.getElementById('btn-back').classList.remove('show');
+                }
+
+                // Show next button
+                document.getElementById('btn-next').style.display = 'block';
+                enableNext();
+            }
+        }
+
+        function updateProgress() {
+            const percent = (state.currentStep / state.totalSteps) * 100;
+            document.getElementById('progress-fill').style.width = percent + '%';
+
+            document.querySelectorAll('.progress-step').forEach((step, idx) => {
+                const stepNum = idx + 1;
+                step.classList.remove('active', 'completed');
+                if (stepNum < state.currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNum === state.currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function loadStepContent() {
+            switch (state.currentStep) {
+                case 2:
+                    loadBrands();
+                    break;
+                case 3:
+                    loadModels();
+                    break;
+                case 5:
+                    setupContactValidation();
+                    break;
+            }
+        }
+
+        function loadBrands() {
+            const brandGrid = document.getElementById('brand-grid');
+            const brands = deviceData[state.deviceType]?.brands || [];
+
+            brandGrid.innerHTML = brands.map(brand =>
+                `<div class="brand-card" data-brand="${brand}">${brand}</div>`
+            ).join('');
+
+            document.querySelectorAll('.brand-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.brand-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    state.brand = this.dataset.brand;
+                    enableNext();
+                });
+            });
+        }
+
+        function loadModels() {
+            const models = deviceData[state.deviceType]?.models[state.brand] || [];
+            const modelPills = document.getElementById('model-pills');
+
+            modelPills.innerHTML = models.slice(0, 6).map(model =>
+                `<button class="model-pill" onclick="selectModel('${model.name}', ${model.price})">
+                    ${model.name} - up to $${model.price}
+                </button>`
+            ).join('');
+
+            // Search functionality
+            const searchInput = document.getElementById('model-search');
+            const suggestions = document.getElementById('model-suggestions');
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                if (query.length > 1) {
+                    const filtered = models.filter(m => m.name.toLowerCase().includes(query));
+                    suggestions.innerHTML = filtered.map(model =>
+                        `<div class="suggestion-item" onclick="selectModel('${model.name}', ${model.price})">
+                            <span>${model.name}</span>
+                            <span class="suggestion-price">up to $${model.price}</span>
+                        </div>`
+                    ).join('');
+                    suggestions.classList.add('show');
+                } else {
+                    suggestions.classList.remove('show');
+                }
+            });
+        }
+
+        function selectModel(name, price) {
+            state.model = name;
+            state.modelPrice = price;
+            document.getElementById('model-search').value = name;
+            document.getElementById('model-suggestions').classList.remove('show');
+            enableNext();
+        }
+
+        function updatePriceCalculation() {
+            const baseValue = state.modelPrice;
+            const adjustedValue = Math.round(baseValue * state.conditionMultiplier);
+            state.finalOffer = adjustedValue;
+
+            document.getElementById('base-value').textContent = '$' + baseValue;
+            document.getElementById('condition-value').textContent = '$' + adjustedValue;
+            document.getElementById('total-value').textContent = '$' + adjustedValue;
+            document.getElementById('price-calculator').style.display = 'block';
+        }
+
+        function setupContactValidation() {
+            const form = document.getElementById('contact-form');
+            const inputs = form.querySelectorAll('input[required]');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', checkFormValidity);
+            });
+        }
+
+        function checkFormValidity() {
+            const form = document.getElementById('contact-form');
+            const inputs = form.querySelectorAll('input[required]');
+            const allFilled = Array.from(inputs).every(input => input.value.trim());
+
+            if (allFilled) {
+                enableNext();
+            } else {
+                disableNext();
+            }
+        }
+
+        function calculateFinalOffer() {
+            const offer = state.finalOffer;
+            document.getElementById('final-offer').textContent = '$' + offer;
+
+            // Psychological anchoring - show lower competitor prices
+            const verizonPrice = Math.round(offer * 0.65);
+            const applePrice = Math.round(offer * 0.70);
+            const savings = offer - Math.max(verizonPrice, applePrice);
+
+            document.getElementById('verizon-price').textContent = '$' + verizonPrice;
+            document.getElementById('apple-price').textContent = '$' + applePrice;
+            document.getElementById('savings').textContent = '+$' + savings;
+        }
+
+        function enableNext() {
+            document.getElementById('btn-next').disabled = false;
+        }
+
+        function disableNext() {
+            document.getElementById('btn-next').disabled = true;
+        }
+
+        function acceptOffer() {
+            // Store quote data
+            const quoteId = 'QT-' + Date.now().toString(36).toUpperCase();
+            sessionStorage.setItem('quote', JSON.stringify({
+                ...state,
+                quoteId,
+                timestamp: new Date().toISOString()
+            }));
+
+            window.location.href = '/schedule.html?quote=' + quoteId;
+        }
+
+        function emailQuote() {
+            alert('Quote sent to your email!');
+        }
+
+        function textQuote() {
+            alert('Quote sent via SMS!');
+        }
+    </script>
+</body>
+</html>

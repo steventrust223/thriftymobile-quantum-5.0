@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- SEO Meta Tags -->
+    <title>ThriftyMobile | Get 15-30% More Cash for Your Phone | Instant Quotes</title>
+    <meta name="description" content="Sell your phone for top dollar. We beat Gazelle, SellCell & carrier trade-ins by $50-$500. Instant quotes, same-day payment, free pickup. Trusted by 50,000+ sellers.">
+    <meta name="keywords" content="sell phone, sell iPhone, cash for phones, phone buyback, sell Samsung, better than gazelle, sell electronics">
+    <link rel="canonical" href="https://thriftymobile.com/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://thriftymobile.com/">
+    <meta property="og:title" content="Get Top Dollar for Your Phone | ThriftyMobile">
+    <meta property="og:description" content="Instant cash offers that beat the competition. Same-day payment available.">
+    <meta property="og:image" content="https://thriftymobile.com/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sell Your Phone for Top Dollar | ThriftyMobile">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="css/design-system.css">
+
+    <style>
+        /* Page-specific styles */
+
+        /* Announcement Bar */
+        .announcement-bar {
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+            padding: var(--tm-space-3) var(--tm-space-4);
+            text-align: center;
+            position: relative;
+            z-index: calc(var(--tm-z-sticky) + 1);
+        }
+
+        .announcement-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--tm-space-4);
+            flex-wrap: wrap;
+        }
+
+        .announcement-text {
+            font-weight: var(--tm-font-semibold);
+            font-size: var(--tm-text-sm);
+        }
+
+        .announcement-countdown {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            background: rgba(255, 255, 255, 0.2);
+            padding: var(--tm-space-1) var(--tm-space-3);
+            border-radius: var(--tm-radius-full);
+            font-weight: var(--tm-font-bold);
+            font-size: var(--tm-text-sm);
+        }
+
+        /* Navigation */
+        .nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--tm-gray-200);
+            position: sticky;
+            top: 0;
+            z-index: var(--tm-z-sticky);
+            transition: all var(--tm-duration-300) var(--tm-ease-default);
+        }
+
+        .nav.scrolled {
+            box-shadow: var(--tm-shadow-lg);
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-3);
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-extrabold);
+            color: var(--tm-gray-900);
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--tm-gradient-primary);
+            border-radius: var(--tm-radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-8);
+        }
+
+        .nav-link {
+            color: var(--tm-gray-600);
+            font-weight: var(--tm-font-medium);
+            transition: color var(--tm-duration-200);
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--tm-primary);
+            transition: width var(--tm-duration-300);
+        }
+
+        .nav-link:hover {
+            color: var(--tm-primary);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-4);
+        }
+
+        .nav-phone {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            color: var(--tm-gray-700);
+            font-weight: var(--tm-font-semibold);
+        }
+
+        /* Mobile menu */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: var(--tm-space-2);
+        }
+
+        .mobile-menu-btn span {
+            width: 24px;
+            height: 2px;
+            background: var(--tm-gray-700);
+            transition: all var(--tm-duration-200);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--tm-gradient-hero);
+            position: relative;
+            overflow: hidden;
+            padding: var(--tm-space-16) 0 var(--tm-space-24);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--tm-gradient-mesh);
+            pointer-events: none;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--tm-space-16);
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            animation: tm-slide-left 0.8s var(--tm-ease-out);
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            background: var(--tm-white);
+            border: 1px solid var(--tm-gray-200);
+            padding: var(--tm-space-2) var(--tm-space-4);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-semibold);
+            margin-bottom: var(--tm-space-6);
+            box-shadow: var(--tm-shadow-sm);
+        }
+
+        .eyebrow-badge {
+            background: var(--tm-gradient-secondary);
+            color: var(--tm-white);
+            padding: var(--tm-space-1) var(--tm-space-2);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-xs);
+            text-transform: uppercase;
+            letter-spacing: var(--tm-tracking-wide);
+        }
+
+        .hero-title {
+            font-size: var(--tm-text-6xl);
+            font-weight: var(--tm-font-black);
+            line-height: var(--tm-leading-tight);
+            letter-spacing: var(--tm-tracking-tight);
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .hero-title .strike {
+            text-decoration: line-through;
+            color: var(--tm-gray-400);
+            font-weight: var(--tm-font-medium);
+        }
+
+        .hero-subtitle {
+            font-size: var(--tm-text-xl);
+            color: var(--tm-gray-600);
+            line-height: var(--tm-leading-relaxed);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .hero-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--tm-space-6);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .hero-feature {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            font-weight: var(--tm-font-medium);
+            color: var(--tm-gray-700);
+        }
+
+        .hero-feature-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--tm-gradient-secondary);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tm-white);
+            font-size: 14px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: var(--tm-space-4);
+        }
+
+        /* Quote Widget */
+        .quote-widget {
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-3xl);
+            padding: var(--tm-space-8);
+            box-shadow: var(--tm-shadow-2xl);
+            position: relative;
+            animation: tm-slide-right 0.8s var(--tm-ease-out);
+        }
+
+        .quote-widget::before {
+            content: 'PRICE MATCH + $50';
+            position: absolute;
+            top: -14px;
+            right: 24px;
+            background: var(--tm-gradient-accent);
+            color: var(--tm-white);
+            padding: var(--tm-space-2) var(--tm-space-4);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-xs);
+            font-weight: var(--tm-font-bold);
+            text-transform: uppercase;
+            letter-spacing: var(--tm-tracking-wide);
+            box-shadow: var(--tm-shadow-accent);
+        }
+
+        .widget-header {
+            text-align: center;
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .widget-title {
+            font-size: var(--tm-text-2xl);
+            font-weight: var(--tm-font-extrabold);
+            margin-bottom: var(--tm-space-1);
+        }
+
+        .widget-subtitle {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+        }
+
+        /* Device search */
+        .device-search {
+            position: relative;
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .device-search-input {
+            width: 100%;
+            padding: var(--tm-space-4) var(--tm-space-4) var(--tm-space-4) var(--tm-space-12);
+            font-size: var(--tm-text-lg);
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-2xl);
+            background: var(--tm-gray-50);
+            transition: all var(--tm-duration-200);
+        }
+
+        .device-search-input:focus {
+            outline: none;
+            border-color: var(--tm-primary);
+            background: var(--tm-white);
+            box-shadow: 0 0 0 4px var(--tm-primary-100);
+        }
+
+        .device-search-icon {
+            position: absolute;
+            left: var(--tm-space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--tm-gray-400);
+            font-size: 20px;
+        }
+
+        /* Device categories */
+        .device-categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--tm-space-3);
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .device-category {
+            background: var(--tm-gray-50);
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            padding: var(--tm-space-4);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+        }
+
+        .device-category:hover {
+            border-color: var(--tm-primary-300);
+            background: var(--tm-white);
+            transform: translateY(-2px);
+            box-shadow: var(--tm-shadow-md);
+        }
+
+        .device-category.active {
+            background: var(--tm-primary);
+            border-color: var(--tm-primary);
+            color: var(--tm-white);
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        .device-category-icon {
+            font-size: 28px;
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .device-category-name {
+            font-weight: var(--tm-font-semibold);
+            font-size: var(--tm-text-sm);
+        }
+
+        /* Popular devices */
+        .popular-devices {
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .popular-label {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-semibold);
+            color: var(--tm-gray-600);
+            margin-bottom: var(--tm-space-3);
+        }
+
+        .device-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--tm-space-2);
+        }
+
+        .device-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            padding: var(--tm-space-2) var(--tm-space-3);
+            background: var(--tm-white);
+            border: 2px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-medium);
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+            position: relative;
+        }
+
+        .device-pill:hover {
+            border-color: var(--tm-primary);
+            background: var(--tm-primary);
+            color: var(--tm-white);
+            transform: scale(1.02);
+        }
+
+        .device-pill-price {
+            color: var(--tm-secondary);
+            font-weight: var(--tm-font-bold);
+        }
+
+        .device-pill:hover .device-pill-price {
+            color: var(--tm-white);
+        }
+
+        .device-pill-hot::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='16'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E");
+            background-size: contain;
+        }
+
+        /* Widget CTA */
+        .widget-cta {
+            margin-top: var(--tm-space-6);
+            padding-top: var(--tm-space-6);
+            border-top: 1px solid var(--tm-gray-200);
+        }
+
+        /* Comparison bar */
+        .comparison-bar {
+            background: var(--tm-gradient-premium);
+            color: var(--tm-white);
+            padding: var(--tm-space-5) 0;
+            margin-top: calc(-1 * var(--tm-space-12));
+            position: relative;
+            z-index: 2;
+        }
+
+        .comparison-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--tm-space-4);
+        }
+
+        .comparison-title {
+            font-weight: var(--tm-font-semibold);
+            font-size: var(--tm-text-lg);
+        }
+
+        .comparison-logos {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-8);
+        }
+
+        .comparison-logo {
+            opacity: 0.6;
+            font-weight: var(--tm-font-medium);
+            transition: opacity var(--tm-duration-200);
+            cursor: default;
+        }
+
+        .comparison-logo:hover {
+            opacity: 1;
+        }
+
+        .comparison-cta {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            font-weight: var(--tm-font-semibold);
+            cursor: pointer;
+        }
+
+        .comparison-cta:hover {
+            text-decoration: underline;
+        }
+
+        /* Process section */
+        .process {
+            background: var(--tm-gray-50);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--tm-space-16);
+        }
+
+        .section-eyebrow {
+            display: inline-block;
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-bold);
+            text-transform: uppercase;
+            letter-spacing: var(--tm-tracking-widest);
+            color: var(--tm-primary);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .section-title {
+            font-size: var(--tm-text-4xl);
+            font-weight: var(--tm-font-extrabold);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .section-subtitle {
+            font-size: var(--tm-text-lg);
+            color: var(--tm-gray-600);
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--tm-space-8);
+        }
+
+        .process-step {
+            text-align: center;
+            position: relative;
+        }
+
+        .process-step::after {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 60%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--tm-primary-300), var(--tm-primary-100));
+        }
+
+        .process-step:last-child::after {
+            display: none;
+        }
+
+        .step-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--tm-space-6);
+            box-shadow: var(--tm-shadow-lg);
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-icon {
+            font-size: 36px;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            background: var(--tm-gradient-primary);
+            color: var(--tm-white);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--tm-font-bold);
+            font-size: var(--tm-text-sm);
+            box-shadow: var(--tm-shadow-primary);
+        }
+
+        .step-title {
+            font-size: var(--tm-text-lg);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-2);
+        }
+
+        .step-desc {
+            color: var(--tm-gray-600);
+            font-size: var(--tm-text-sm);
+            line-height: var(--tm-leading-relaxed);
+        }
+
+        /* Value props */
+        .value-props {
+            background: var(--tm-white);
+        }
+
+        .props-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--tm-space-8);
+        }
+
+        .prop-card {
+            background: var(--tm-white);
+            border: 1px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-8);
+            text-align: center;
+            transition: all var(--tm-duration-300);
+            position: relative;
+        }
+
+        .prop-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--tm-shadow-2xl);
+            border-color: var(--tm-primary-200);
+        }
+
+        .prop-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--tm-accent);
+            color: var(--tm-white);
+            padding: var(--tm-space-1) var(--tm-space-3);
+            border-radius: var(--tm-radius-full);
+            font-size: var(--tm-text-xs);
+            font-weight: var(--tm-font-bold);
+            transform: rotate(3deg);
+        }
+
+        .prop-icon {
+            font-size: 48px;
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .prop-title {
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-bold);
+            margin-bottom: var(--tm-space-3);
+        }
+
+        .prop-desc {
+            color: var(--tm-gray-600);
+            line-height: var(--tm-leading-relaxed);
+        }
+
+        /* Reviews section */
+        .reviews {
+            background: var(--tm-gray-50);
+        }
+
+        .reviews-stats {
+            display: flex;
+            justify-content: center;
+            gap: var(--tm-space-16);
+            margin-bottom: var(--tm-space-12);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: var(--tm-text-4xl);
+            font-weight: var(--tm-font-black);
+            background: var(--tm-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--tm-gray-600);
+            font-size: var(--tm-text-sm);
+            margin-top: var(--tm-space-1);
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--tm-space-6);
+        }
+
+        .review-card {
+            background: var(--tm-white);
+            border-radius: var(--tm-radius-2xl);
+            padding: var(--tm-space-6);
+            box-shadow: var(--tm-shadow-md);
+            transition: all var(--tm-duration-300);
+        }
+
+        .review-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--tm-shadow-xl);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-4);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .review-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--tm-gradient-primary);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tm-white);
+            font-weight: var(--tm-font-bold);
+        }
+
+        .review-author {
+            flex: 1;
+        }
+
+        .review-name {
+            font-weight: var(--tm-font-semibold);
+        }
+
+        .review-device {
+            font-size: var(--tm-text-sm);
+            color: var(--tm-gray-500);
+        }
+
+        .review-amount {
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-extrabold);
+            color: var(--tm-secondary);
+        }
+
+        .review-rating {
+            display: flex;
+            gap: var(--tm-space-1);
+            margin-bottom: var(--tm-space-3);
+            color: var(--tm-accent);
+        }
+
+        .review-text {
+            color: var(--tm-gray-700);
+            line-height: var(--tm-leading-relaxed);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .review-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-semibold);
+            color: var(--tm-primary);
+        }
+
+        /* FAQ section */
+        .faq {
+            background: var(--tm-white);
+        }
+
+        .faq-grid {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border: 1px solid var(--tm-gray-200);
+            border-radius: var(--tm-radius-xl);
+            margin-bottom: var(--tm-space-4);
+            overflow: hidden;
+            transition: all var(--tm-duration-200);
+        }
+
+        .faq-item:hover {
+            border-color: var(--tm-primary-200);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--tm-space-5) var(--tm-space-6);
+            background: var(--tm-white);
+            font-weight: var(--tm-font-semibold);
+            cursor: pointer;
+            transition: background var(--tm-duration-200);
+        }
+
+        .faq-question:hover {
+            background: var(--tm-gray-50);
+        }
+
+        .faq-icon {
+            font-size: var(--tm-text-xl);
+            color: var(--tm-primary);
+            transition: transform var(--tm-duration-200);
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--tm-duration-300);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-content {
+            padding: 0 var(--tm-space-6) var(--tm-space-6);
+            color: var(--tm-gray-600);
+            line-height: var(--tm-leading-relaxed);
+        }
+
+        /* Final CTA */
+        .final-cta {
+            background: var(--tm-gradient-primary);
+            color: var(--tm-white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-cta::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.08) 0%, transparent 30%);
+            pointer-events: none;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-title {
+            font-size: var(--tm-text-4xl);
+            font-weight: var(--tm-font-extrabold);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .cta-subtitle {
+            font-size: var(--tm-text-xl);
+            opacity: 0.9;
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .cta-timer {
+            display: flex;
+            justify-content: center;
+            gap: var(--tm-space-4);
+            margin-bottom: var(--tm-space-8);
+        }
+
+        .timer-unit {
+            background: rgba(255, 255, 255, 0.15);
+            padding: var(--tm-space-4) var(--tm-space-6);
+            border-radius: var(--tm-radius-xl);
+            min-width: 90px;
+            backdrop-filter: blur(10px);
+        }
+
+        .timer-value {
+            font-size: var(--tm-text-3xl);
+            font-weight: var(--tm-font-bold);
+            line-height: 1;
+        }
+
+        .timer-label {
+            font-size: var(--tm-text-sm);
+            opacity: 0.8;
+            margin-top: var(--tm-space-1);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--tm-gray-900);
+            color: var(--tm-white);
+            padding: var(--tm-space-16) 0 var(--tm-space-8);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(4, 1fr);
+            gap: var(--tm-space-12);
+            margin-bottom: var(--tm-space-12);
+        }
+
+        .footer-brand {
+            max-width: 300px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-3);
+            font-size: var(--tm-text-xl);
+            font-weight: var(--tm-font-extrabold);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .footer-desc {
+            color: var(--tm-gray-400);
+            line-height: var(--tm-leading-relaxed);
+            margin-bottom: var(--tm-space-6);
+        }
+
+        .footer-section h4 {
+            font-size: var(--tm-text-sm);
+            font-weight: var(--tm-font-bold);
+            text-transform: uppercase;
+            letter-spacing: var(--tm-tracking-widest);
+            color: var(--tm-gray-400);
+            margin-bottom: var(--tm-space-4);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--tm-space-3);
+        }
+
+        .footer-link {
+            color: var(--tm-gray-400);
+            transition: color var(--tm-duration-200);
+        }
+
+        .footer-link:hover {
+            color: var(--tm-white);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--tm-space-8);
+            border-top: 1px solid var(--tm-gray-800);
+        }
+
+        .footer-copy {
+            color: var(--tm-gray-500);
+            font-size: var(--tm-text-sm);
+        }
+
+        .social-links {
+            display: flex;
+            gap: var(--tm-space-4);
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: var(--tm-gray-800);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tm-gray-400);
+            transition: all var(--tm-duration-200);
+        }
+
+        .social-link:hover {
+            background: var(--tm-primary);
+            color: var(--tm-white);
+            transform: translateY(-2px);
+        }
+
+        /* Floating elements */
+        .floating-chat {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: var(--tm-z-fixed);
+        }
+
+        .chat-btn {
+            width: 64px;
+            height: 64px;
+            background: var(--tm-gradient-secondary);
+            border-radius: var(--tm-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--tm-white);
+            box-shadow: var(--tm-shadow-2xl), var(--tm-shadow-secondary);
+            cursor: pointer;
+            transition: all var(--tm-duration-200);
+        }
+
+        .chat-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* FOMO banner */
+        .fomo-banner {
+            background: var(--tm-gray-900);
+            color: var(--tm-white);
+            padding: var(--tm-space-4) 0;
+            overflow: hidden;
+        }
+
+        .fomo-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--tm-space-4);
+        }
+
+        .fomo-live {
+            display: flex;
+            align-items: center;
+            gap: var(--tm-space-2);
+            font-weight: var(--tm-font-semibold);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: var(--tm-space-12);
+            }
+
+            .process-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .process-step::after {
+                display: none;
+            }
+
+            .props-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .nav-phone {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: var(--tm-text-4xl);
+            }
+
+            .device-categories {
+                grid-template-columns: 1fr;
+            }
+
+            .process-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-stats {
+                flex-direction: column;
+                gap: var(--tm-space-6);
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: var(--tm-space-4);
+                text-align: center;
+            }
+
+            .comparison-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <div class="announcement-content">
+            <span class="announcement-text">Limited Time: Get $50 EXTRA on all devices!</span>
+            <span class="announcement-countdown">
+                <span>Ends in:</span>
+                <span id="announcement-timer">02:45:30</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="tm-container">
+            <div class="nav-inner">
+                <a href="/" class="logo">
+                    <span class="logo-icon">$</span>
+                    <span>ThriftyMobile</span>
+                </a>
+
+                <div class="nav-links">
+                    <a href="/sell" class="nav-link">Sell Device</a>
+                    <a href="/how-it-works" class="nav-link">How It Works</a>
+                    <a href="/bulk" class="nav-link">Bulk Sales</a>
+                    <a href="/about" class="nav-link">About</a>
+                </div>
+
+                <div class="nav-cta">
+                    <div class="nav-phone tm-hide-tablet">
+                        <span>1-800-CASH-NOW</span>
+                    </div>
+                    <a href="/track" class="tm-btn tm-btn-ghost tm-hide-mobile">Track Order</a>
+                    <a href="#quote" class="tm-btn tm-btn-primary">Get Quote</a>
+                </div>
+
+                <button class="mobile-menu-btn" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="tm-container">
+            <div class="hero-grid">
+                <div class="hero-content">
+                    <div class="hero-eyebrow">
+                        <span class="eyebrow-badge">#1 Rated</span>
+                        <span>Alternative to Gazelle & SellCell</span>
+                    </div>
+
+                    <h1 class="hero-title">
+                        Get <span class="strike">$100</span> <span class="tm-text-gradient">$50-$500 MORE</span><br>
+                        Than Anyone Else Pays
+                    </h1>
+
+                    <p class="hero-subtitle">
+                        We beat Gazelle, SellCell, and carrier trade-ins every time.
+                        Instant quotes, same-day payment, free pickup or shipping.
+                    </p>
+
+                    <div class="hero-features">
+                        <div class="hero-feature">
+                            <span class="hero-feature-icon">&#10003;</span>
+                            <span>Price match + $50</span>
+                        </div>
+                        <div class="hero-feature">
+                            <span class="hero-feature-icon">&#10003;</span>
+                            <span>Same-day payment</span>
+                        </div>
+                        <div class="hero-feature">
+                            <span class="hero-feature-icon">&#10003;</span>
+                            <span>Free shipping</span>
+                        </div>
+                    </div>
+
+                    <div class="hero-actions">
+                        <a href="#quote" class="tm-btn tm-btn-primary tm-btn-lg">Get Instant Quote</a>
+                        <a href="/comparison" class="tm-btn tm-btn-ghost tm-btn-lg">Compare Prices</a>
+                    </div>
+                </div>
+
+                <!-- Quote Widget -->
+                <div class="quote-widget" id="quote">
+                    <div class="widget-header">
+                        <h2 class="widget-title">Get Your Price in 10 Seconds</h2>
+                        <p class="widget-subtitle">No email required for instant quote</p>
+                    </div>
+
+                    <div class="device-search">
+                        <span class="device-search-icon">&#128269;</span>
+                        <input type="text" class="device-search-input" placeholder="Search your device (e.g., iPhone 15 Pro)" autocomplete="off" id="device-search">
+                    </div>
+
+                    <div class="device-categories">
+                        <div class="device-category active" data-type="phone">
+                            <div class="device-category-icon">&#128241;</div>
+                            <div class="device-category-name">Phones</div>
+                        </div>
+                        <div class="device-category" data-type="laptop">
+                            <div class="device-category-icon">&#128187;</div>
+                            <div class="device-category-name">Laptops</div>
+                        </div>
+                        <div class="device-category" data-type="tablet">
+                            <div class="device-category-icon">&#128218;</div>
+                            <div class="device-category-name">Tablets</div>
+                        </div>
+                    </div>
+
+                    <div class="popular-devices">
+                        <div class="popular-label">
+                            <span class="tm-live-dot"></span>
+                            <span>Trending Now (Best Prices)</span>
+                        </div>
+                        <div class="device-pills">
+                            <button class="device-pill device-pill-hot" data-device="iPhone 15 Pro Max" data-price="1150">
+                                iPhone 15 Pro Max <span class="device-pill-price">$1,150</span>
+                            </button>
+                            <button class="device-pill device-pill-hot" data-device="iPhone 14 Pro" data-price="875">
+                                iPhone 14 Pro <span class="device-pill-price">$875</span>
+                            </button>
+                            <button class="device-pill" data-device="MacBook Pro M3" data-price="1850">
+                                MacBook Pro M3 <span class="device-pill-price">$1,850</span>
+                            </button>
+                            <button class="device-pill" data-device="Samsung S24 Ultra" data-price="925">
+                                Samsung S24 Ultra <span class="device-pill-price">$925</span>
+                            </button>
+                            <button class="device-pill" data-device="iPad Pro" data-price="750">
+                                iPad Pro <span class="device-pill-price">$750</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="tm-btn tm-btn-primary tm-btn-full tm-btn-lg" id="get-quote-btn">
+                        Get My Quote Now &rarr;
+                    </button>
+
+                    <div class="widget-cta">
+                        <div class="tm-trust-strip">
+                            <div class="tm-trust-item">
+                                <span class="tm-trust-icon">&#128274;</span>
+                                <span>SSL Secured</span>
+                            </div>
+                            <div class="tm-trust-item">
+                                <span class="tm-trust-icon">&#10003;</span>
+                                <span>No Spam</span>
+                            </div>
+                            <div class="tm-trust-item">
+                                <span class="tm-trust-icon">&#9889;</span>
+                                <span>Instant Quote</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Bar -->
+    <section class="comparison-bar">
+        <div class="tm-container">
+            <div class="comparison-inner">
+                <div class="comparison-title">We Pay More Than:</div>
+                <div class="comparison-logos">
+                    <span class="comparison-logo">Gazelle</span>
+                    <span class="comparison-logo">SellCell</span>
+                    <span class="comparison-logo">ItsWorthMore</span>
+                    <span class="comparison-logo">Decluttr</span>
+                    <span class="comparison-logo">Carrier Trade-ins</span>
+                </div>
+                <div class="comparison-cta">
+                    <span>See comparison</span>
+                    <span>&rarr;</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOMO Banner -->
+    <div class="fomo-banner">
+        <div class="fomo-content">
+            <div class="fomo-live">
+                <span class="tm-live-dot"></span>
+                <span>LIVE</span>
+            </div>
+            <span id="fomo-text">Sarah from Chicago just got $892 for iPhone 14 Pro (2 min ago)</span>
+        </div>
+    </div>
+
+    <!-- Process Section -->
+    <section class="process tm-section">
+        <div class="tm-container">
+            <div class="section-header">
+                <span class="section-eyebrow">How It Works</span>
+                <h2 class="section-title">Simple, Fast, Secure</h2>
+                <p class="section-subtitle">From quote to payment in 24 hours or less</p>
+            </div>
+
+            <div class="process-grid">
+                <div class="process-step tm-animate-fade-up">
+                    <div class="step-icon-wrapper">
+                        <span class="step-icon">&#128269;</span>
+                        <span class="step-number">1</span>
+                    </div>
+                    <h3 class="step-title">Get Quote</h3>
+                    <p class="step-desc">Instant price in 10 seconds, no email needed</p>
+                </div>
+
+                <div class="process-step tm-animate-fade-up tm-delay-100">
+                    <div class="step-icon-wrapper">
+                        <span class="step-icon">&#128230;</span>
+                        <span class="step-number">2</span>
+                    </div>
+                    <h3 class="step-title">Ship Free</h3>
+                    <p class="step-desc">Prepaid label or local pickup available</p>
+                </div>
+
+                <div class="process-step tm-animate-fade-up tm-delay-200">
+                    <div class="step-icon-wrapper">
+                        <span class="step-icon">&#10003;</span>
+                        <span class="step-number">3</span>
+                    </div>
+                    <h3 class="step-title">Quick Check</h3>
+                    <p class="step-desc">Device verified within 2 hours of receipt</p>
+                </div>
+
+                <div class="process-step tm-animate-fade-up tm-delay-300">
+                    <div class="step-icon-wrapper">
+                        <span class="step-icon">&#128176;</span>
+                        <span class="step-number">4</span>
+                    </div>
+                    <h3 class="step-title">Get Paid</h3>
+                    <p class="step-desc">Same-day payment via your preferred method</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Props -->
+    <section class="value-props tm-section">
+        <div class="tm-container">
+            <div class="section-header">
+                <span class="section-eyebrow">Why ThriftyMobile</span>
+                <h2 class="section-title">The Smarter Way to Sell</h2>
+                <p class="section-subtitle">Join 50,000+ smart sellers who got top dollar</p>
+            </div>
+
+            <div class="props-grid">
+                <div class="prop-card tm-card-hover">
+                    <span class="prop-badge">NO HASSLE</span>
+                    <div class="prop-icon">&#128640;</div>
+                    <h3 class="prop-title">10-Minute Doorstep Pickup</h3>
+                    <p class="prop-desc">We come to you - home, office, or Starbucks. No shipping, no waiting, no driving to sketchy meetups.</p>
+                </div>
+
+                <div class="prop-card tm-card-hover">
+                    <span class="prop-badge">INSTANT</span>
+                    <div class="prop-icon">&#128181;</div>
+                    <h3 class="prop-title">Cash On The Spot</h3>
+                    <p class="prop-desc">Real cash, Zelle, PayPal, or Venmo. Count it yourself. No waiting 5-7 days for payment like others.</p>
+                </div>
+
+                <div class="prop-card tm-card-hover">
+                    <span class="prop-badge">GUARANTEED</span>
+                    <div class="prop-icon">&#128737;</div>
+                    <h3 class="prop-title">Price Lock Guarantee</h3>
+                    <p class="prop-desc">Your quote is locked for 48 hours. If we find any competitor paying more, we'll beat them by $50.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews -->
+    <section class="reviews tm-section">
+        <div class="tm-container">
+            <div class="section-header">
+                <span class="section-eyebrow">Testimonials</span>
+                <h2 class="section-title">Join 50,000+ Happy Sellers</h2>
+                <p class="section-subtitle">Real reviews from verified customers</p>
+            </div>
+
+            <div class="reviews-stats">
+                <div class="stat">
+                    <div class="stat-value">$8.4M</div>
+                    <div class="stat-label">Cash Paid Out</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">4.9/5</div>
+                    <div class="stat-label">Google Reviews</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">12 min</div>
+                    <div class="stat-label">Avg Pickup Time</div>
+                </div>
+            </div>
+
+            <div class="reviews-grid">
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">MR</div>
+                        <div class="review-author">
+                            <div class="review-name">Maria Rodriguez</div>
+                            <div class="review-device">iPhone 14 Pro Max</div>
+                        </div>
+                        <div class="review-amount">$945</div>
+                    </div>
+                    <div class="review-rating">
+                        <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+                    </div>
+                    <p class="review-text">"Needed rent money FAST. They came to my apartment in 15 minutes with $945 cash. Verizon only offered $600 trade-in credit. No brainer!"</p>
+                    <div class="review-verified">
+                        <span>&#10003;</span>
+                        <span>Verified Purchase</span>
+                    </div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">JC</div>
+                        <div class="review-author">
+                            <div class="review-name">James Chen</div>
+                            <div class="review-device">Samsung S23 Ultra</div>
+                        </div>
+                        <div class="review-amount">$820</div>
+                    </div>
+                    <div class="review-rating">
+                        <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+                    </div>
+                    <p class="review-text">"Tried selling on Facebook - nothing but scammers. These guys showed up with cash, counted it in front of me. Whole thing took 10 minutes."</p>
+                    <div class="review-verified">
+                        <span>&#10003;</span>
+                        <span>Verified Purchase</span>
+                    </div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">AW</div>
+                        <div class="review-author">
+                            <div class="review-name">Ashley Williams</div>
+                            <div class="review-device">iPhone 13 (Cracked)</div>
+                        </div>
+                        <div class="review-amount">$385</div>
+                    </div>
+                    <div class="review-rating">
+                        <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+                    </div>
+                    <p class="review-text">"Dropped my phone, screen shattered. Still got $385! Apple wanted $279 to fix it. Got paid more for broken phone than repair cost!"</p>
+                    <div class="review-verified">
+                        <span>&#10003;</span>
+                        <span>Verified Purchase</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq tm-section">
+        <div class="tm-container">
+            <div class="section-header">
+                <span class="section-eyebrow">FAQ</span>
+                <h2 class="section-title">Common Questions</h2>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How is this even real? Sounds too good to be true...</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content">
+                            We get it - it does sound crazy! Here's the deal: We're a tech refurbishing company that sells directly to businesses overseas where phones cost 2-3x more. By cutting out the middleman (stores like Best Buy take 40% profit), we can pay you way more. Check our 2,500+ Google reviews if you're still skeptical!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What if I owe money on my phone?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content">
+                            No problem! As long as the phone isn't reported stolen, we'll buy it. Many customers use our cash to pay off their phone bill. Just make sure to pay it off within 30 days to avoid any issues.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Is my data safe? What about my photos?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content">
+                            100% safe. We'll help you factory reset your phone right in front of you before we leave. For extra peace of mind, we also run military-grade data wiping software (DoD 5220.22-M) on every device. Your photos, texts, and apps are completely erased - guaranteed.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Why do you pay so much more than everyone else?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content">
+                            Simple: We're not a retail store with huge overhead. No rent, no employees standing around, no CEO yacht payments. We're a lean tech company that exports phones to markets where they're worth more. Our business model only works if we pay top dollar to get inventory.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How fast can I get paid?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content">
+                            Same day! If you choose local pickup, you get cash on the spot. If you ship your device, we process and pay within 2 hours of receiving it. Most customers get paid via Zelle, PayPal, or Venmo instantly. Checks take 3-5 business days.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta tm-section-lg">
+        <div class="tm-container">
+            <div class="cta-content">
+                <h2 class="cta-title">Your $50 Bonus Expires In:</h2>
+
+                <div class="cta-timer">
+                    <div class="timer-unit">
+                        <div class="timer-value" id="timer-hours">02</div>
+                        <div class="timer-label">Hours</div>
+                    </div>
+                    <div class="timer-unit">
+                        <div class="timer-value" id="timer-minutes">45</div>
+                        <div class="timer-label">Minutes</div>
+                    </div>
+                    <div class="timer-unit">
+                        <div class="timer-value" id="timer-seconds">30</div>
+                        <div class="timer-label">Seconds</div>
+                    </div>
+                </div>
+
+                <p class="cta-subtitle">Lock in today's high price + $50 bonus before it's gone</p>
+
+                <a href="#quote" class="tm-btn tm-btn-white tm-btn-xl">
+                    Get My Cash Offer Now &rarr;
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="tm-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <span class="logo-icon">$</span>
+                        <span>ThriftyMobile</span>
+                    </div>
+                    <p class="footer-desc">
+                        The smarter way to sell your electronics. We guarantee the best prices, fastest payment, and most secure data wiping in the industry.
+                    </p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Sell</h4>
+                    <div class="footer-links">
+                        <a href="/sell-phone" class="footer-link">Sell Phone</a>
+                        <a href="/sell-laptop" class="footer-link">Sell Laptop</a>
+                        <a href="/sell-tablet" class="footer-link">Sell Tablet</a>
+                        <a href="/sell-watch" class="footer-link">Sell Watch</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Compare</h4>
+                    <div class="footer-links">
+                        <a href="/vs-gazelle" class="footer-link">vs Gazelle</a>
+                        <a href="/vs-sellcell" class="footer-link">vs SellCell</a>
+                        <a href="/vs-itsworthmore" class="footer-link">vs ItsWorthMore</a>
+                        <a href="/vs-carriers" class="footer-link">vs Carriers</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <div class="footer-links">
+                        <a href="/how-it-works" class="footer-link">How It Works</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                        <a href="/shipping" class="footer-link">Shipping</a>
+                        <a href="/contact" class="footer-link">Contact</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <div class="footer-links">
+                        <a href="/about" class="footer-link">About Us</a>
+                        <a href="/blog" class="footer-link">Blog</a>
+                        <a href="/reviews" class="footer-link">Reviews</a>
+                        <a href="/careers" class="footer-link">Careers</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-copy">&copy; 2025 ThriftyMobile. All rights reserved. | Privacy | Terms | Sitemap</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook">f</a>
+                    <a href="#" class="social-link" aria-label="Twitter">t</a>
+                    <a href="#" class="social-link" aria-label="LinkedIn">in</a>
+                    <a href="#" class="social-link" aria-label="Instagram">ig</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Chat Button -->
+    <div class="floating-chat">
+        <button class="chat-btn" aria-label="Chat with us" onclick="openChat()">
+            &#128172;
+        </button>
+    </div>
+
+    <script>
+        // Navigation scroll effect
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Device category selection
+        document.querySelectorAll('.device-category').forEach(cat => {
+            cat.addEventListener('click', function() {
+                document.querySelectorAll('.device-category').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Device pill selection
+        document.querySelectorAll('.device-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                const device = this.dataset.device;
+                document.getElementById('device-search').value = device;
+                // Navigate to quote page
+                window.location.href = `/quote?device=${encodeURIComponent(device)}`;
+            });
+        });
+
+        // Get quote button
+        document.getElementById('get-quote-btn').addEventListener('click', function() {
+            const device = document.getElementById('device-search').value;
+            if (device) {
+                window.location.href = `/quote?device=${encodeURIComponent(device)}`;
+            } else {
+                window.location.href = '/quote';
+            }
+        });
+
+        // FAQ toggle
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const wasActive = faqItem.classList.contains('active');
+
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            if (!wasActive) {
+                faqItem.classList.add('active');
+            }
+        }
+
+        // Countdown timer
+        function updateCountdown() {
+            const now = new Date();
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const diff = endOfDay - now;
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('timer-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('timer-minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('timer-seconds').textContent = String(seconds).padStart(2, '0');
+
+            document.getElementById('announcement-timer').textContent =
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // FOMO updates
+        const fomoMessages = [
+            "Sarah from Chicago just got $892 for iPhone 14 Pro",
+            "Mike from NYC locked in $1,150 for iPhone 15 Pro Max",
+            "Jennifer from LA sold Samsung S24 Ultra for $925",
+            "David from Houston got $820 for MacBook Air M2",
+            "Emma from Seattle received $750 for iPad Pro"
+        ];
+
+        let fomoIndex = 0;
+        function updateFOMO() {
+            const times = ['just now', '1 min ago', '2 min ago', '3 min ago', '5 min ago'];
+            const randomTime = times[Math.floor(Math.random() * times.length)];
+            document.getElementById('fomo-text').textContent = `${fomoMessages[fomoIndex]} (${randomTime})`;
+            fomoIndex = (fomoIndex + 1) % fomoMessages.length;
+        }
+
+        setInterval(updateFOMO, 8000);
+
+        // Chat function
+        function openChat() {
+            // Integrate with myAlice or other chat widget
+            console.log('Open chat widget');
+            // window.myAliceChat.open();
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            });
+        });
+
+        // Search autocomplete (placeholder for API integration)
+        const searchInput = document.getElementById('device-search');
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            // In production, this would call your device database API
+            console.log('Searching for:', query);
+        });
+    </script>
+</body>
+</html>

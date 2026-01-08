@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Leads</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      padding: 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 16px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-height: 90vh; display: flex; flex-direction: column; }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 24px; color: #667eea; margin-bottom: 8px; }
+    .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filters select { padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+    .table-container { flex: 1; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { position: sticky; top: 0; z-index: 10; background: #4285F4; color: white; }
+    th { padding: 10px 8px; text-align: left; font-weight: 600; white-space: nowrap; font-size: 12px; }
+    tbody tr { border-bottom: 1px solid #e5e7eb; }
+    tbody tr:hover { background: #f9fafb; }
+    td { padding: 10px 8px; }
+    .priority { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .stage-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; background: #e0e7ff; color: #3730a3; }
+    .btn { padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-primary:hover { background: #5568d3; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .close-btn { width: 100%; margin-top: 20px; padding: 12px; background: #e5e7eb; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .close-btn:hover { background: #d1d5db; }
+    .loading { text-align: center; padding: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 Manage Leads</h1>
+      <p>View and update all customer inquiries</p>
+    </div>
+
+    <div class="filters">
+      <select id="statusFilter" onchange="filterLeads()">
+        <option value="">All Statuses</option>
+        <option value="Active">Active</option>
+        <option value="Follow-Up Needed">Follow-Up Needed</option>
+        <option value="Waiting Response">Waiting Response</option>
+        <option value="Deal Closed">Deal Closed</option>
+        <option value="Lost/Declined">Lost/Declined</option>
+      </select>
+
+      <select id="stageFilter" onchange="filterLeads()">
+        <option value="">All Stages</option>
+        <option value="New Inquiry">New Inquiry</option>
+        <option value="Contacted">Contacted</option>
+        <option value="Offer Made">Offer Made</option>
+        <option value="Negotiating">Negotiating</option>
+        <option value="Accepted">Accepted</option>
+        <option value="Purchased">Purchased</option>
+        <option value="Lost">Lost</option>
+      </select>
+
+      <button class="btn btn-primary" onclick="refreshLeads()">🔄 Refresh</button>
+      <button class="btn btn-success" onclick="google.script.run.showAddLeadDialog()">➕ Add Lead</button>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Lead ID</th>
+            <th>Customer</th>
+            <th>Contact</th>
+            <th>Device</th>
+            <th>Est. Value</th>
+            <th>Score</th>
+            <th>Priority</th>
+            <th>Stage</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Response Time</th>
+            <th>Inquiry Date</th>
+          </tr>
+        </thead>
+        <tbody id="leadsBody">
+          <tr><td colspan="12" class="loading">Loading leads...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button class="close-btn" onclick="google.script.host.close()">Close</button>
+  </div>
+
+  <script>
+    let allLeads = [];
+
+    window.addEventListener('load', function() {
+      loadLeads();
+    });
+
+    function loadLeads() {
+      google.script.run
+        .withSuccessHandler(function(leads) {
+          allLeads = leads;
+          displayLeads(leads);
+        })
+        .withFailureHandler(showError)
+        .getAllLeads();
+    }
+
+    function filterLeads() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const stageFilter = document.getElementById('stageFilter').value;
+
+      let filtered = allLeads;
+
+      if (statusFilter) {
+        filtered = filtered.filter(lead => lead.Status === statusFilter);
+      }
+
+      if (stageFilter) {
+        filtered = filtered.filter(lead => lead.Stage === stageFilter);
+      }
+
+      displayLeads(filtered);
+    }
+
+    function displayLeads(leads) {
+      const tbody = document.getElementById('leadsBody');
+      tbody.innerHTML = '';
+
+      if (leads.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 20px;">No leads found</td></tr>';
+        return;
+      }
+
+      leads.forEach(lead => {
+        const row = document.createElement('tr');
+
+        const inquiryDate = lead['Inquiry Date'] ? new Date(lead['Inquiry Date']).toLocaleDateString() : 'N/A';
+        const responseTime = lead['Response Time (min)'] && lead['Response Time (min)'] > 0
+          ? lead['Response Time (min)'] + ' min'
+          : '--';
+
+        row.innerHTML = `
+          <td><small>${esc(lead['Lead ID'] || '')}</small></td>
+          <td><strong>${esc(lead['Customer Name'] || '')}</strong></td>
+          <td><small>${esc(lead.Phone || '')}<br>${esc(lead.Email || '')}</small></td>
+          <td><small>${esc(lead['Device Model'] || '')}<br>${esc(lead.Storage || '')} ${esc(lead.Condition || '')}</small></td>
+          <td>$${(lead['Estimated Value'] || 0).toFixed(0)}</td>
+          <td><strong>${lead['Lead Score'] || 0}</strong></td>
+          <td><span class="priority">${esc(lead.Priority || '')}</span></td>
+          <td><span class="stage-badge">${esc(lead.Stage || '')}</span></td>
+          <td>${esc(lead.Status || '')}</td>
+          <td><small>${esc(lead['Lead Source'] || '')}</small></td>
+          <td>${responseTime}</td>
+          <td><small>${inquiryDate}</small></td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function refreshLeads() {
+      document.getElementById('leadsBody').innerHTML = '<tr><td colspan="12" class="loading">Refreshing...</td></tr>';
+      loadLeads();
+    }
+
+    function showError(error) {
+      alert('Error: ' + error);
+      document.getElementById('leadsBody').innerHTML = '<tr><td colspan="12" style="text-align: center; color: #ef4444; padding: 20px;">Error loading leads</td></tr>';
+    }
+
+    function esc(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

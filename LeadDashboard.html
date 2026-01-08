@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lead Management Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .header { background: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header h1 { font-size: 28px; color: #667eea; margin-bottom: 8px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-card .icon { font-size: 24px; margin-bottom: 8px; }
+    .stat-card .label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card .value { font-size: 32px; font-weight: bold; color: #333; }
+    .stat-card .value.hot { color: #ef4444; }
+    .stat-card .value.success { color: #10b981; }
+    .table-section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .table-section h2 { font-size: 18px; margin-bottom: 16px; color: #333; }
+    .table-container { overflow-x: auto; max-height: 400px; overflow-y: auto; border-radius: 8px; border: 1px solid #e5e7eb; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead { position: sticky; top: 0; z-index: 10; background: #4285F4; color: white; }
+    th { padding: 12px; text-align: left; font-weight: 600; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
+    tbody tr:hover { background: #f9fafb; }
+    td { padding: 12px; white-space: nowrap; }
+    .priority { padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .actions { display: flex; gap: 12px; }
+    .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn.secondary { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .loading { text-align: center; padding: 40px; }
+    .spinner { border: 4px solid #f3f4f6; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Lead Management Dashboard</h1>
+      <p>Track and prioritize your customer inquiries</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="icon">📞</div>
+        <div class="label">Total Leads</div>
+        <div class="value" id="totalLeads">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">✅</div>
+        <div class="label">Active Leads</div>
+        <div class="value" id="activeLeads">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">🔥</div>
+        <div class="label">Hot Leads</div>
+        <div class="value hot" id="hotLeads">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">⚡</div>
+        <div class="label">Avg Response (min)</div>
+        <div class="value" id="avgResponseTime">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">💰</div>
+        <div class="label">Est. Total Value</div>
+        <div class="value" id="totalValue">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">📊</div>
+        <div class="label">Conversion Rate</div>
+        <div class="value success" id="conversionRate">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">📅</div>
+        <div class="label">Leads Today</div>
+        <div class="value" id="leadsToday">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">🎯</div>
+        <div class="label">Avg Lead Score</div>
+        <div class="value" id="avgScore">--</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="google.script.run.showAddLeadDialog()">➕ Add New Lead</button>
+      <button class="btn secondary" onclick="refreshDashboard()">🔄 Refresh Data</button>
+      <button class="btn" onclick="google.script.run.showManageLeadsDialog()">📋 Manage All Leads</button>
+    </div>
+
+    <div class="table-section" style="margin-top: 24px;">
+      <h2>🔥 Hot Leads (Priority Contacts)</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Device</th>
+              <th>Value</th>
+              <th>Score</th>
+              <th>Priority</th>
+              <th>Stage</th>
+              <th>Source</th>
+              <th>Inquiry Date</th>
+            </tr>
+          </thead>
+          <tbody id="hotLeadsBody">
+            <tr><td colspan="8" class="loading"><div class="spinner"></div>Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', loadDashboard);
+
+    function loadDashboard() {
+      google.script.run.withSuccessHandler(displayStats).withFailureHandler(showError).getLeadStats();
+      google.script.run.withSuccessHandler(displayHotLeads).withFailureHandler(showError).getHotLeads(10);
+    }
+
+    function displayStats(stats) {
+      document.getElementById('totalLeads').textContent = stats.totalLeads;
+      document.getElementById('activeLeads').textContent = stats.activeLeads;
+      document.getElementById('hotLeads').textContent = stats.hotLeads;
+      document.getElementById('avgResponseTime').textContent = stats.avgResponseTime;
+      document.getElementById('totalValue').textContent = '$' + stats.totalEstimatedValue.toFixed(0);
+      document.getElementById('conversionRate').textContent = stats.conversionRate.toFixed(1) + '%';
+      document.getElementById('leadsToday').textContent = stats.leadsToday;
+      document.getElementById('avgScore').textContent = stats.avgLeadScore;
+    }
+
+    function displayHotLeads(leads) {
+      const tbody = document.getElementById('hotLeadsBody');
+      tbody.innerHTML = '';
+
+      if (leads.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No active leads</td></tr>';
+        return;
+      }
+
+      leads.forEach(lead => {
+        const row = document.createElement('tr');
+        const date = lead['Inquiry Date'] ? new Date(lead['Inquiry Date']).toLocaleString() : 'N/A';
+        row.innerHTML = `
+          <td><strong>${esc(lead['Customer Name'])}</strong><br><small>${esc(lead.Phone || '')}</small></td>
+          <td>${esc(lead['Device Model'])}<br><small>${esc(lead.Storage || '')}, ${esc(lead.Condition || '')}</small></td>
+          <td>$${(lead['Estimated Value'] || 0).toFixed(0)}</td>
+          <td><strong>${lead['Lead Score'] || 0}</strong></td>
+          <td><span class="priority">${esc(lead.Priority || '')}</span></td>
+          <td>${esc(lead.Stage || '')}</td>
+          <td>${esc(lead['Lead Source'] || '')}</td>
+          <td><small>${date}</small></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function refreshDashboard() {
+      document.getElementById('hotLeadsBody').innerHTML = '<tr><td colspan="8" class="loading"><div class="spinner"></div>Refreshing...</td></tr>';
+      loadDashboard();
+    }
+
+    function showError(error) {
+      alert('Error: ' + error);
+    }
+
+    function esc(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

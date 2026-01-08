@@ -29,21 +29,38 @@
 - **Data Validation** — Dropdown menus for conditions, storage, and status
 - **Dashboard Analytics** — Real-time stats and top opportunities
 
+### 📞 Lead Management & CRM
+- **Lead Tracking** — Capture and manage customer inquiries from first contact
+- **Intelligent Lead Scoring** — Automatic 0-100 scoring based on device value, condition, source, distance, and urgency
+- **Speed to Lead Metrics** — Track response time in minutes for every inquiry
+- **Distance/Location Tracking** — Monitor customer proximity and optimize for local deals
+- **Full Sales Pipeline** — Track leads through stages: New Inquiry → Contacted → Offer Made → Negotiating → Purchased
+- **Priority Rankings** — Auto-categorized as 🔴 Hot, 🟠 Warm, 🟡 Medium, or 🔵 Cold
+- **Conversion Analytics** — Track conversion rates, average response time, and deal velocity
+- **Hot Lead Dashboard** — Prioritized list of high-value opportunities requiring immediate attention
+
 ### 🛠️ User-Friendly Tools
 - **Quick Add Dialog** — Add new phones with a simple form
 - **Search Dialog** — Find any phone in seconds
 - **Settings Panel** — Configure system behavior
 - **Custom Menu** — All features accessible from the spreadsheet menu
+- **Lead Dashboard** — Complete CRM analytics with pipeline visualization
+- **Add Lead Dialog** — Capture new customer inquiries with automatic scoring
+- **Manage Leads** — View, filter, and update all leads in one interface
 
 ## 📋 What's Included
 
 ### Data Sheets
-1. **Phone Inventory** — Track all your phones with IMEI, condition, pricing, and status
-2. **Buyback Analysis** — Automated profit calculations and deal recommendations
-3. **Market Pricing** — Reference prices for different models and conditions
-4. **Settings** — Configurable system parameters
+1. **Lead Management** — Complete CRM with inquiry tracking, scoring, and pipeline management
+2. **Phone Inventory** — Track all your phones with IMEI, condition, pricing, customer linkage
+3. **Buyback Analysis** — Automated profit calculations and deal recommendations
+4. **Market Pricing** — Reference prices for different models and conditions
+5. **Settings** — Configurable system parameters
 
 ### HTML Interfaces
+- **Lead Dashboard** — CRM analytics with hot leads, conversion metrics, and response times
+- **Add Lead Dialog** — Capture new inquiries with automatic lead scoring
+- **Manage Leads** — Comprehensive lead management with filtering and stage updates
 - **Dashboard** — Main analytics and overview interface
 - **Welcome Screen** — One-click initialization wizard
 - **Add Phone Dialog** — User-friendly form for adding inventory
@@ -233,6 +250,87 @@ The system automatically categorizes deals:
 - 🟠 **Fair Deal** — 10-20% profit margin
 - 🔴 **Low Margin** — 0-10% profit margin
 - ❌ **Loss** — Negative profit margin
+
+## 📞 Lead Management & Scoring System
+
+### Lead Scoring Algorithm (0-100 Points)
+
+The system automatically scores every lead based on five key factors:
+
+**1. Device Value (0-40 points)**
+- $1000+: 40 points
+- $700-999: 30 points
+- $400-699: 20 points
+- $200-399: 10 points
+
+**2. Condition (0-25 points)**
+- Like New: 25 points
+- Excellent: 20 points
+- Good: 15 points
+- Fair: 10 points
+- Poor: 5 points
+
+**3. Lead Source (0-15 points)**
+- Referral: 15 points (highest quality)
+- Website: 12 points
+- Walk-In: 10 points
+- Social Media/Phone: 8 points
+- Email: 7 points
+- Advertisement: 5 points
+- Other: 3 points
+
+**4. Distance/Location (0-10 points)**
+- 0-5 miles: 10 points
+- 6-15 miles: 7 points
+- 16-30 miles: 4 points
+- 31-50 miles: 2 points
+- 50+ miles or unknown: 0 points
+
+**5. Urgency/Recency (0-10 points)**
+- < 1 hour old: 10 points
+- 1-4 hours old: 8 points
+- 4-24 hours old: 5 points
+- 24-48 hours old: 2 points
+- 48+ hours old: 0 points
+
+### Priority Levels
+
+Based on the total score, leads are automatically categorized:
+
+- 🔴 **Hot** (80-100 points) — High-value, immediate action required
+- 🟠 **Warm** (60-79 points) — Strong opportunity, contact soon
+- 🟡 **Medium** (40-59 points) — Moderate priority
+- 🔵 **Cold** (0-39 points) — Low priority
+
+### Speed to Lead Tracking
+
+Response time is automatically calculated:
+- Tracks minutes from inquiry to first contact
+- Displays on Lead Dashboard
+- Helps optimize response processes
+- Industry best practice: respond within 5 minutes
+
+### Lead Pipeline Stages
+
+1. **New Inquiry** — Initial customer contact
+2. **Contacted** — First response sent
+3. **Offer Made** — Price quote provided
+4. **Negotiating** — Back-and-forth on price
+5. **Accepted** — Deal agreed upon
+6. **Purchased** — Phone acquired, moved to inventory
+7. **Lost** — Customer declined or went elsewhere
+
+### Lead Analytics
+
+The Lead Dashboard tracks:
+- Total leads in system
+- Active leads (not closed)
+- Hot leads requiring attention
+- Average response time
+- Conversion rate (purchased / total)
+- Total estimated value of pipeline
+- Leads received today
+- Average lead score
 
 ## 🤝 Contributing
 

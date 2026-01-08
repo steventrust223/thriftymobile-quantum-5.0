@@ -7,20 +7,28 @@
 
 const CONFIG = {
   SHEET_NAMES: {
+    LEADS: 'Lead Management',
     INVENTORY: 'Phone Inventory',
     ANALYSIS: 'Buyback Analysis',
     PRICING: 'Market Pricing',
     SETTINGS: 'Settings'
   },
   HEADERS: {
-    INVENTORY: ['Phone Model', 'IMEI', 'Condition', 'Storage', 'Purchase Price', 'Date Added', 'Status', 'Notes'],
+    LEADS: ['Lead ID', 'Customer Name', 'Phone', 'Email', 'Device Model', 'Storage', 'Condition', 'Estimated Value',
+            'Lead Source', 'Location/Distance', 'Inquiry Date', 'First Contact Date', 'Response Time (min)',
+            'Lead Score', 'Priority', 'Stage', 'Offer Amount', 'Status', 'Notes', 'Last Updated'],
+    INVENTORY: ['Phone Model', 'IMEI', 'Condition', 'Storage', 'Purchase Price', 'Date Added', 'Status', 'Lead ID', 'Customer Name', 'Notes'],
     ANALYSIS: ['Phone Model', 'Market Value', 'Purchase Price', 'Profit Margin', 'Margin %', 'Recommendation', 'Last Updated'],
     PRICING: ['Brand', 'Model', 'Storage', 'Condition', 'Market Price', 'Source', 'Last Updated'],
     SETTINGS: ['Setting', 'Value', 'Description']
   },
   CONDITIONS: ['Like New', 'Excellent', 'Good', 'Fair', 'Poor'],
   STORAGE_OPTIONS: ['64GB', '128GB', '256GB', '512GB', '1TB'],
-  STATUS_OPTIONS: ['In Stock', 'Sold', 'Listed', 'Pending', 'Defective']
+  STATUS_OPTIONS: ['In Stock', 'Sold', 'Listed', 'Pending', 'Defective'],
+  LEAD_SOURCES: ['Website', 'Walk-In', 'Phone Call', 'Email', 'Referral', 'Social Media', 'Advertisement', 'Other'],
+  LEAD_STAGES: ['New Inquiry', 'Contacted', 'Offer Made', 'Negotiating', 'Accepted', 'Purchased', 'Lost'],
+  LEAD_STATUS: ['Active', 'Follow-Up Needed', 'Waiting Response', 'Deal Closed', 'Lost/Declined'],
+  PRIORITY_LEVELS: ['🔴 Hot', '🟠 Warm', '🟡 Medium', '🔵 Cold']
 };
 
 // ==================== MENU & UI ====================
@@ -32,6 +40,12 @@ function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu('🚀 ThriftyMobile')
     .addItem('📊 Open Dashboard', 'showDashboard')
+    .addSeparator()
+    .addSubMenu(ui.createMenu('📞 Lead Management')
+      .addItem('🎯 Lead Dashboard', 'showLeadDashboard')
+      .addItem('➕ Add New Lead', 'showAddLeadDialog')
+      .addItem('📋 Manage Leads', 'showManageLeadsDialog')
+      .addItem('🔄 Refresh Lead Scores', 'refreshLeadScores'))
     .addSeparator()
     .addItem('⚡ Initialize Spreadsheet', 'initializeSpreadsheet')
     .addItem('🔄 Refresh Analysis', 'refreshAnalysis')
@@ -100,6 +114,36 @@ function showSettings() {
   SpreadsheetApp.getUi().showModalDialog(html, '⚙️ Settings');
 }
 
+/**
+ * Shows lead dashboard
+ */
+function showLeadDashboard() {
+  const html = HtmlService.createHtmlOutputFromFile('LeadDashboard')
+    .setWidth(1200)
+    .setHeight(800);
+  SpreadsheetApp.getUi().showModalDialog(html, '🎯 Lead Management Dashboard');
+}
+
+/**
+ * Shows add lead dialog
+ */
+function showAddLeadDialog() {
+  const html = HtmlService.createHtmlOutputFromFile('AddLead')
+    .setWidth(700)
+    .setHeight(650);
+  SpreadsheetApp.getUi().showModalDialog(html, '➕ Add New Lead');
+}
+
+/**
+ * Shows manage leads dialog
+ */
+function showManageLeadsDialog() {
+  const html = HtmlService.createHtmlOutputFromFile('ManageLeads')
+    .setWidth(1200)
+    .setHeight(700);
+  SpreadsheetApp.getUi().showModalDialog(html, '📋 Manage Leads');
+}
+
 // ==================== INITIALIZATION ====================
 
 /**
@@ -122,12 +166,14 @@ function initializeSpreadsheet() {
     }
 
     // Create/update all sheets
+    createOrUpdateSheet(ss, CONFIG.SHEET_NAMES.LEADS, CONFIG.HEADERS.LEADS);
     createOrUpdateSheet(ss, CONFIG.SHEET_NAMES.INVENTORY, CONFIG.HEADERS.INVENTORY);
     createOrUpdateSheet(ss, CONFIG.SHEET_NAMES.ANALYSIS, CONFIG.HEADERS.ANALYSIS);
     createOrUpdateSheet(ss, CONFIG.SHEET_NAMES.PRICING, CONFIG.HEADERS.PRICING);
     createOrUpdateSheet(ss, CONFIG.SHEET_NAMES.SETTINGS, CONFIG.HEADERS.SETTINGS);
 
     // Apply formatting
+    formatLeadsSheet();
     formatInventorySheet();
     formatAnalysisSheet();
     formatPricingSheet();
@@ -188,6 +234,115 @@ function createOrUpdateSheet(ss, sheetName, headers) {
 }
 
 /**
+ * Formats the Leads sheet
+ */
+function formatLeadsSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+  if (!sheet) return;
+
+  // Set column widths
+  sheet.setColumnWidth(1, 100);  // Lead ID
+  sheet.setColumnWidth(2, 150);  // Customer Name
+  sheet.setColumnWidth(3, 120);  // Phone
+  sheet.setColumnWidth(4, 180);  // Email
+  sheet.setColumnWidth(5, 180);  // Device Model
+  sheet.setColumnWidth(6, 80);   // Storage
+  sheet.setColumnWidth(7, 100);  // Condition
+  sheet.setColumnWidth(8, 120);  // Estimated Value
+  sheet.setColumnWidth(9, 120);  // Lead Source
+  sheet.setColumnWidth(10, 150); // Location/Distance
+  sheet.setColumnWidth(11, 150); // Inquiry Date
+  sheet.setColumnWidth(12, 150); // First Contact Date
+  sheet.setColumnWidth(13, 130); // Response Time
+  sheet.setColumnWidth(14, 100); // Lead Score
+  sheet.setColumnWidth(15, 100); // Priority
+  sheet.setColumnWidth(16, 120); // Stage
+  sheet.setColumnWidth(17, 120); // Offer Amount
+  sheet.setColumnWidth(18, 120); // Status
+  sheet.setColumnWidth(19, 200); // Notes
+  sheet.setColumnWidth(20, 150); // Last Updated
+
+  // Add data validation for Storage
+  const storageRange = sheet.getRange('F2:F1000');
+  const storageRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(CONFIG.STORAGE_OPTIONS, true)
+    .build();
+  storageRange.setDataValidation(storageRule);
+
+  // Add data validation for Condition
+  const conditionRange = sheet.getRange('G2:G1000');
+  const conditionRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(CONFIG.CONDITIONS, true)
+    .build();
+  conditionRange.setDataValidation(conditionRule);
+
+  // Add data validation for Lead Source
+  const sourceRange = sheet.getRange('I2:I1000');
+  const sourceRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(CONFIG.LEAD_SOURCES, true)
+    .build();
+  sourceRange.setDataValidation(sourceRule);
+
+  // Add data validation for Priority
+  const priorityRange = sheet.getRange('O2:O1000');
+  const priorityRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(CONFIG.PRIORITY_LEVELS, true)
+    .build();
+  priorityRange.setDataValidation(priorityRule);
+
+  // Add data validation for Stage
+  const stageRange = sheet.getRange('P2:P1000');
+  const stageRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(CONFIG.LEAD_STAGES, true)
+    .build();
+  stageRange.setDataValidation(stageRule);
+
+  // Add data validation for Status
+  const statusRange = sheet.getRange('R2:R1000');
+  const statusRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(CONFIG.LEAD_STATUS, true)
+    .build();
+  statusRange.setDataValidation(statusRule);
+
+  // Format currency columns
+  sheet.getRange('H2:H1000').setNumberFormat('$#,##0.00'); // Estimated Value
+  sheet.getRange('Q2:Q1000').setNumberFormat('$#,##0.00'); // Offer Amount
+
+  // Format date columns
+  sheet.getRange('K2:K1000').setNumberFormat('yyyy-mm-dd hh:mm'); // Inquiry Date
+  sheet.getRange('L2:L1000').setNumberFormat('yyyy-mm-dd hh:mm'); // First Contact Date
+  sheet.getRange('T2:T1000').setNumberFormat('yyyy-mm-dd hh:mm'); // Last Updated
+
+  // Format Response Time as number
+  sheet.getRange('M2:M1000').setNumberFormat('0');
+
+  // Add conditional formatting for Priority
+  const hotRule = SpreadsheetApp.newConditionalFormatRule()
+    .whenTextContains('🔴 Hot')
+    .setBackground('#F4CCCC')
+    .setFontColor('#990000')
+    .setRanges([sheet.getRange('O2:O1000')])
+    .build();
+
+  const warmRule = SpreadsheetApp.newConditionalFormatRule()
+    .whenTextContains('🟠 Warm')
+    .setBackground('#FCE5CD')
+    .setFontColor('#B45F06')
+    .setRanges([sheet.getRange('O2:O1000')])
+    .build();
+
+  const rules = sheet.getConditionalFormatRules();
+  rules.push(hotRule);
+  rules.push(warmRule);
+  sheet.setConditionalFormatRules(rules);
+
+  // Add alternating row colors
+  sheet.getRange('A2:T1000').applyRowBanding(SpreadsheetApp.BandingTheme.BLUE);
+}
+
+/**
  * Formats the Inventory sheet
  */
 function formatInventorySheet() {
@@ -204,7 +359,9 @@ function formatInventorySheet() {
   sheet.setColumnWidth(5, 120); // Purchase Price
   sheet.setColumnWidth(6, 110); // Date Added
   sheet.setColumnWidth(7, 100); // Status
-  sheet.setColumnWidth(8, 250); // Notes
+  sheet.setColumnWidth(8, 100); // Lead ID
+  sheet.setColumnWidth(9, 150); // Customer Name
+  sheet.setColumnWidth(10, 250); // Notes
 
   // Add data validation for Condition (column 3)
   const conditionRange = sheet.getRange('C2:C1000');
@@ -234,7 +391,7 @@ function formatInventorySheet() {
   sheet.getRange('F2:F1000').setNumberFormat('yyyy-mm-dd');
 
   // Add alternating row colors
-  sheet.getRange('A2:H1000').applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY);
+  sheet.getRange('A2:J1000').applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY);
 }
 
 /**
@@ -415,6 +572,8 @@ function addPhone(phoneData) {
       phoneData.purchasePrice,
       phoneData.dateAdded,
       phoneData.status || 'In Stock',
+      phoneData.leadId || '',
+      phoneData.customerName || '',
       phoneData.notes || ''
     ];
 
@@ -649,4 +808,479 @@ function getTopOpportunities(limit = 5) {
  */
 function getConfig() {
   return CONFIG;
+}
+
+// ==================== LEAD MANAGEMENT ====================
+
+/**
+ * Generates unique lead ID
+ */
+function generateLeadId() {
+  const timestamp = new Date().getTime();
+  const random = Math.floor(Math.random() * 1000);
+  return `LEAD-${timestamp}-${random}`;
+}
+
+/**
+ * Calculates lead score based on multiple factors
+ */
+function calculateLeadScore(leadData) {
+  let score = 0;
+
+  // Device value (0-40 points)
+  const estimatedValue = leadData.estimatedValue || 0;
+  if (estimatedValue >= 1000) score += 40;
+  else if (estimatedValue >= 700) score += 30;
+  else if (estimatedValue >= 400) score += 20;
+  else if (estimatedValue >= 200) score += 10;
+
+  // Condition (0-25 points)
+  const conditionScores = {
+    'Like New': 25,
+    'Excellent': 20,
+    'Good': 15,
+    'Fair': 10,
+    'Poor': 5
+  };
+  score += conditionScores[leadData.condition] || 0;
+
+  // Lead source (0-15 points) - higher value sources
+  const sourceScores = {
+    'Referral': 15,
+    'Website': 12,
+    'Walk-In': 10,
+    'Social Media': 8,
+    'Phone Call': 8,
+    'Email': 7,
+    'Advertisement': 5,
+    'Other': 3
+  };
+  score += sourceScores[leadData.leadSource] || 0;
+
+  // Distance/Location (0-10 points) - closer is better
+  if (leadData.distance) {
+    const distance = parseFloat(leadData.distance);
+    if (distance <= 5) score += 10;
+    else if (distance <= 15) score += 7;
+    else if (distance <= 30) score += 4;
+    else if (distance <= 50) score += 2;
+  } else if (leadData.location && leadData.location.toLowerCase().includes('local')) {
+    score += 10;
+  } else if (leadData.location) {
+    score += 5;
+  }
+
+  // Urgency/Recency (0-10 points)
+  const inquiryDate = new Date(leadData.inquiryDate);
+  const now = new Date();
+  const hoursSinceInquiry = (now - inquiryDate) / (1000 * 60 * 60);
+  if (hoursSinceInquiry <= 1) score += 10;
+  else if (hoursSinceInquiry <= 4) score += 8;
+  else if (hoursSinceInquiry <= 24) score += 5;
+  else if (hoursSinceInquiry <= 48) score += 2;
+
+  return Math.min(100, score); // Cap at 100
+}
+
+/**
+ * Determines priority level based on score
+ */
+function getPriorityLevel(score) {
+  if (score >= 80) return '🔴 Hot';
+  if (score >= 60) return '🟠 Warm';
+  if (score >= 40) return '🟡 Medium';
+  return '🔵 Cold';
+}
+
+/**
+ * Calculates response time in minutes
+ */
+function calculateResponseTime(inquiryDate, firstContactDate) {
+  if (!firstContactDate || !inquiryDate) return null;
+
+  const inquiry = new Date(inquiryDate);
+  const contact = new Date(firstContactDate);
+  const diffMs = contact - inquiry;
+  return Math.round(diffMs / (1000 * 60)); // Convert to minutes
+}
+
+/**
+ * Adds a new lead to the system
+ */
+function addLead(leadData) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+    // Generate lead ID
+    const leadId = generateLeadId();
+
+    // Set inquiry date if not provided
+    const inquiryDate = leadData.inquiryDate || new Date();
+
+    // Calculate lead score
+    const leadScore = calculateLeadScore({
+      ...leadData,
+      inquiryDate
+    });
+
+    // Determine priority
+    const priority = getPriorityLevel(leadScore);
+
+    // Calculate response time if first contact date provided
+    const responseTime = leadData.firstContactDate ?
+      calculateResponseTime(inquiryDate, leadData.firstContactDate) : null;
+
+    // Prepare row data
+    const newRow = [
+      leadId,
+      leadData.customerName || '',
+      leadData.phone || '',
+      leadData.email || '',
+      leadData.deviceModel || '',
+      leadData.storage || '',
+      leadData.condition || '',
+      leadData.estimatedValue || 0,
+      leadData.leadSource || '',
+      leadData.location || '',
+      inquiryDate,
+      leadData.firstContactDate || '',
+      responseTime,
+      leadScore,
+      priority,
+      leadData.stage || 'New Inquiry',
+      leadData.offerAmount || '',
+      leadData.status || 'Active',
+      leadData.notes || '',
+      new Date()
+    ];
+
+    sheet.appendRow(newRow);
+
+    return {
+      success: true,
+      message: 'Lead added successfully!',
+      leadId: leadId,
+      score: leadScore,
+      priority: priority
+    };
+  } catch (error) {
+    return { success: false, message: error.toString() };
+  }
+}
+
+/**
+ * Updates a lead's information
+ */
+function updateLead(leadId, updates) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+
+    // Find the lead row
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === leadId) {
+        // Update specified columns
+        Object.keys(updates).forEach(key => {
+          const columnIndex = headers.indexOf(key);
+          if (columnIndex !== -1) {
+            sheet.getRange(i + 1, columnIndex + 1).setValue(updates[key]);
+          }
+        });
+
+        // Update Last Updated column
+        const lastUpdatedIndex = headers.indexOf('Last Updated');
+        if (lastUpdatedIndex !== -1) {
+          sheet.getRange(i + 1, lastUpdatedIndex + 1).setValue(new Date());
+        }
+
+        // Recalculate score if relevant fields changed
+        if (updates['First Contact Date']) {
+          const inquiryDate = data[i][headers.indexOf('Inquiry Date')];
+          const responseTime = calculateResponseTime(inquiryDate, updates['First Contact Date']);
+          const responseTimeIndex = headers.indexOf('Response Time (min)');
+          sheet.getRange(i + 1, responseTimeIndex + 1).setValue(responseTime);
+        }
+
+        return { success: true, message: 'Lead updated successfully!' };
+      }
+    }
+
+    return { success: false, message: 'Lead not found!' };
+  } catch (error) {
+    return { success: false, message: error.toString() };
+  }
+}
+
+/**
+ * Refreshes all lead scores
+ */
+function refreshLeadScores() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+
+    let updated = 0;
+
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const leadData = {
+        estimatedValue: row[headers.indexOf('Estimated Value')],
+        condition: row[headers.indexOf('Condition')],
+        leadSource: row[headers.indexOf('Lead Source')],
+        location: row[headers.indexOf('Location/Distance')],
+        inquiryDate: row[headers.indexOf('Inquiry Date')]
+      };
+
+      // Recalculate score
+      const newScore = calculateLeadScore(leadData);
+      const newPriority = getPriorityLevel(newScore);
+
+      // Update score and priority
+      sheet.getRange(i + 1, headers.indexOf('Lead Score') + 1).setValue(newScore);
+      sheet.getRange(i + 1, headers.indexOf('Priority') + 1).setValue(newPriority);
+
+      updated++;
+    }
+
+    SpreadsheetApp.getUi().alert(`✅ Refreshed ${updated} lead scores!`);
+    return { success: true, count: updated };
+  } catch (error) {
+    SpreadsheetApp.getUi().alert('Error: ' + error.toString());
+    return { success: false, message: error.toString() };
+  }
+}
+
+/**
+ * Gets lead management statistics
+ */
+function getLeadStats() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return {
+      totalLeads: 0,
+      activeLeads: 0,
+      hotLeads: 0,
+      avgResponseTime: 0,
+      conversionRate: 0,
+      totalEstimatedValue: 0,
+      leadsToday: 0,
+      avgLeadScore: 0
+    };
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+
+  let totalLeads = data.length - 1;
+  let activeLeads = 0;
+  let hotLeads = 0;
+  let totalResponseTime = 0;
+  let responseTimeCount = 0;
+  let purchased = 0;
+  let totalEstimatedValue = 0;
+  let leadsToday = 0;
+  let totalScore = 0;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const status = row[headers.indexOf('Status')];
+    const priority = row[headers.indexOf('Priority')];
+    const responseTime = row[headers.indexOf('Response Time (min)')];
+    const stage = row[headers.indexOf('Stage')];
+    const estimatedValue = row[headers.indexOf('Estimated Value')] || 0;
+    const inquiryDate = new Date(row[headers.indexOf('Inquiry Date')]);
+    const leadScore = row[headers.indexOf('Lead Score')] || 0;
+
+    if (status === 'Active' || status === 'Follow-Up Needed' || status === 'Waiting Response') {
+      activeLeads++;
+    }
+
+    if (priority === '🔴 Hot') {
+      hotLeads++;
+    }
+
+    if (responseTime && responseTime > 0) {
+      totalResponseTime += responseTime;
+      responseTimeCount++;
+    }
+
+    if (stage === 'Purchased') {
+      purchased++;
+    }
+
+    totalEstimatedValue += estimatedValue;
+
+    inquiryDate.setHours(0, 0, 0, 0);
+    if (inquiryDate.getTime() === today.getTime()) {
+      leadsToday++;
+    }
+
+    totalScore += leadScore;
+  }
+
+  const avgResponseTime = responseTimeCount > 0 ? Math.round(totalResponseTime / responseTimeCount) : 0;
+  const conversionRate = totalLeads > 0 ? (purchased / totalLeads) * 100 : 0;
+  const avgLeadScore = totalLeads > 0 ? Math.round(totalScore / totalLeads) : 0;
+
+  return {
+    totalLeads,
+    activeLeads,
+    hotLeads,
+    avgResponseTime,
+    conversionRate,
+    totalEstimatedValue,
+    leadsToday,
+    avgLeadScore
+  };
+}
+
+/**
+ * Gets hot leads (high priority, not contacted yet)
+ */
+function getHotLeads(limit = 10) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return [];
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const results = [];
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const status = row[headers.indexOf('Status')];
+    const stage = row[headers.indexOf('Stage')];
+
+    // Only include active leads that haven't been purchased or lost
+    if ((status === 'Active' || status === 'Follow-Up Needed') &&
+        stage !== 'Purchased' && stage !== 'Lost') {
+      const rowObject = {};
+      headers.forEach((header, index) => {
+        rowObject[header] = row[index];
+      });
+      rowObject.rowNumber = i + 1;
+      results.push(rowObject);
+    }
+  }
+
+  // Sort by lead score (descending)
+  results.sort((a, b) => (b['Lead Score'] || 0) - (a['Lead Score'] || 0));
+
+  return results.slice(0, limit);
+}
+
+/**
+ * Gets leads by stage
+ */
+function getLeadsByStage(stage) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return [];
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const results = [];
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row[headers.indexOf('Stage')] === stage) {
+      const rowObject = {};
+      headers.forEach((header, index) => {
+        rowObject[header] = row[index];
+      });
+      rowObject.rowNumber = i + 1;
+      results.push(rowObject);
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Gets all leads with optional filtering
+ */
+function getAllLeads(filterStatus = null) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEADS);
+
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return [];
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const results = [];
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+
+    if (filterStatus && row[headers.indexOf('Status')] !== filterStatus) {
+      continue;
+    }
+
+    const rowObject = {};
+    headers.forEach((header, index) => {
+      rowObject[header] = row[index];
+    });
+    rowObject.rowNumber = i + 1;
+    results.push(rowObject);
+  }
+
+  // Sort by inquiry date (newest first)
+  results.sort((a, b) => new Date(b['Inquiry Date']) - new Date(a['Inquiry Date']));
+
+  return results;
+}
+
+/**
+ * Converts lead to inventory purchase
+ */
+function convertLeadToSale(leadId, purchaseData) {
+  try {
+    // Add phone to inventory
+    const phoneResult = addPhone({
+      model: purchaseData.model,
+      imei: purchaseData.imei,
+      condition: purchaseData.condition,
+      storage: purchaseData.storage,
+      purchasePrice: purchaseData.purchasePrice,
+      status: 'In Stock',
+      leadId: leadId,
+      customerName: purchaseData.customerName,
+      notes: purchaseData.notes
+    });
+
+    if (!phoneResult.success) {
+      return phoneResult;
+    }
+
+    // Update lead status
+    updateLead(leadId, {
+      'Stage': 'Purchased',
+      'Status': 'Deal Closed',
+      'Offer Amount': purchaseData.purchasePrice
+    });
+
+    return { success: true, message: 'Lead converted to sale successfully!' };
+  } catch (error) {
+    return { success: false, message: error.toString() };
+  }
 }

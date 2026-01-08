@@ -1,0 +1,29 @@
+{
+  "name": "thriftymobile-quantum-5.0",
+  "version": "5.0.0",
+  "description": "Automated Phone Buyback Analysis Engine (Apps Script + HTML)",
+  "main": "Code.gs",
+  "scripts": {
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "deploy": "clasp deploy",
+    "open": "clasp open"
+  },
+  "keywords": [
+    "google-apps-script",
+    "spreadsheet",
+    "phone-buyback",
+    "inventory-management",
+    "profit-analysis"
+  ],
+  "author": "ThriftyMobile",
+  "license": "MIT",
+  "devDependencies": {
+    "@google/clasp": "^2.4.2",
+    "@types/google-apps-script": "^1.0.83"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/steventrust223/thriftymobile-quantum-5.0"
+  }
+}

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThriftyMobile Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #667eea;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .stat-card .value.profit {
+      color: #10b981;
+    }
+
+    .stat-card .value.warning {
+      color: #f59e0b;
+    }
+
+    .stat-card .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    /* Action Buttons */
+    .actions {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .actions h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .btn.tertiary {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    /* Data Tables */
+    .table-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .table-section h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #333;
+      position: sticky;
+      top: 0;
+      background: white;
+      padding-bottom: 8px;
+      z-index: 10;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 400px;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #4285F4;
+      color: white;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+      border-bottom: 2px solid #3b82f6;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+      transition: background-color 0.2s;
+    }
+
+    tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+
+    tbody tr:nth-child(even):hover {
+      background-color: #f3f4f6;
+    }
+
+    td {
+      padding: 12px 16px;
+      white-space: nowrap;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Status badges */
+    .badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .badge.in-stock {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge.sold {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge.listed {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge.pending {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .button-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table-container {
+        max-height: 300px;
+      }
+    }
+
+    /* Profit indicators */
+    .profit-positive {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .profit-negative {
+      color: #ef4444;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>
+        <span>📊</span>
+        ThriftyMobile Quantum 5.0 Dashboard
+      </h1>
+      <p>Automated Phone Buyback Analysis Engine</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="icon">📱</div>
+        <div class="label">Total Inventory</div>
+        <div class="value" id="totalInventory">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">✅</div>
+        <div class="label">In Stock</div>
+        <div class="value" id="inStock">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">💰</div>
+        <div class="label">Total Investment</div>
+        <div class="value" id="totalInvestment">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">📈</div>
+        <div class="label">Market Value</div>
+        <div class="value" id="totalMarketValue">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">🎯</div>
+        <div class="label">Potential Profit</div>
+        <div class="value profit" id="totalProfit">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">📊</div>
+        <div class="label">Avg Margin</div>
+        <div class="value" id="avgMargin">--</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions">
+      <h2>⚡ Quick Actions</h2>
+      <div class="button-grid">
+        <button class="btn" onclick="google.script.run.showAddPhoneDialog()">
+          ➕ Add New Phone
+        </button>
+        <button class="btn secondary" onclick="refreshData()">
+          🔄 Refresh Analysis
+        </button>
+        <button class="btn tertiary" onclick="google.script.run.showSearchDialog()">
+          🔍 Search Inventory
+        </button>
+        <button class="btn" onclick="google.script.run.updateMarketPrices()">
+          📈 Update Prices
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Inventory -->
+    <div class="table-section">
+      <h2>📦 Recent Inventory</h2>
+      <div class="table-container">
+        <table id="recentInventoryTable">
+          <thead>
+            <tr>
+              <th>Phone Model</th>
+              <th>Condition</th>
+              <th>Storage</th>
+              <th>Purchase Price</th>
+              <th>Status</th>
+              <th>Date Added</th>
+            </tr>
+          </thead>
+          <tbody id="recentInventoryBody">
+            <tr>
+              <td colspan="6" class="loading">
+                <div class="spinner"></div>
+                Loading inventory...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top Opportunities -->
+    <div class="table-section">
+      <h2>🎯 Top Profit Opportunities</h2>
+      <div class="table-container">
+        <table id="opportunitiesTable">
+          <thead>
+            <tr>
+              <th>Phone Model</th>
+              <th>Market Value</th>
+              <th>Purchase Price</th>
+              <th>Profit Margin</th>
+              <th>Margin %</th>
+              <th>Recommendation</th>
+            </tr>
+          </thead>
+          <tbody id="opportunitiesBody">
+            <tr>
+              <td colspan="6" class="loading">
+                <div class="spinner"></div>
+                Loading opportunities...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load dashboard data on open
+    window.addEventListener('load', function() {
+      loadDashboard();
+    });
+
+    function loadDashboard() {
+      // Load statistics
+      google.script.run
+        .withSuccessHandler(displayStats)
+        .withFailureHandler(showError)
+        .getDashboardStats();
+
+      // Load recent inventory
+      google.script.run
+        .withSuccessHandler(displayRecentInventory)
+        .withFailureHandler(showError)
+        .getRecentInventory(10);
+
+      // Load top opportunities
+      google.script.run
+        .withSuccessHandler(displayTopOpportunities)
+        .withFailureHandler(showError)
+        .getTopOpportunities(5);
+    }
+
+    function displayStats(stats) {
+      document.getElementById('totalInventory').textContent = stats.totalInventory;
+      document.getElementById('inStock').textContent = stats.inStock;
+      document.getElementById('totalInvestment').textContent = '$' + stats.totalInvestment.toFixed(2);
+      document.getElementById('totalMarketValue').textContent = '$' + stats.totalMarketValue.toFixed(2);
+      document.getElementById('totalProfit').textContent = '$' + stats.totalProfit.toFixed(2);
+      document.getElementById('avgMargin').textContent = stats.avgProfitMargin.toFixed(1) + '%';
+    }
+
+    function displayRecentInventory(items) {
+      const tbody = document.getElementById('recentInventoryBody');
+      tbody.innerHTML = '';
+
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No inventory items found</td></tr>';
+        return;
+      }
+
+      items.forEach(item => {
+        const row = document.createElement('tr');
+
+        const statusClass = item.Status ? item.Status.toLowerCase().replace(' ', '-') : '';
+        const dateStr = item['Date Added'] ? new Date(item['Date Added']).toLocaleDateString() : 'N/A';
+
+        row.innerHTML = `
+          <td><strong>${escapeHtml(item['Phone Model'] || 'N/A')}</strong></td>
+          <td>${escapeHtml(item.Condition || 'N/A')}</td>
+          <td>${escapeHtml(item.Storage || 'N/A')}</td>
+          <td>$${(item['Purchase Price'] || 0).toFixed(2)}</td>
+          <td><span class="badge ${statusClass}">${escapeHtml(item.Status || 'N/A')}</span></td>
+          <td>${dateStr}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function displayTopOpportunities(items) {
+      const tbody = document.getElementById('opportunitiesBody');
+      tbody.innerHTML = '';
+
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No opportunities found</td></tr>';
+        return;
+      }
+
+      items.forEach(item => {
+        const row = document.createElement('tr');
+
+        const profitMargin = item['Profit Margin'] || 0;
+        const marginPercent = (item['Margin %'] || 0) * 100;
+        const profitClass = profitMargin >= 0 ? 'profit-positive' : 'profit-negative';
+
+        row.innerHTML = `
+          <td><strong>${escapeHtml(item['Phone Model'] || 'N/A')}</strong></td>
+          <td>$${(item['Market Value'] || 0).toFixed(2)}</td>
+          <td>$${(item['Purchase Price'] || 0).toFixed(2)}</td>
+          <td class="${profitClass}">$${profitMargin.toFixed(2)}</td>
+          <td class="${profitClass}">${marginPercent.toFixed(1)}%</td>
+          <td>${escapeHtml(item.Recommendation || 'N/A')}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function refreshData() {
+      // Show loading state
+      document.getElementById('recentInventoryBody').innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Refreshing...</td></tr>';
+      document.getElementById('opportunitiesBody').innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Refreshing...</td></tr>';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            loadDashboard();
+          } else {
+            showError(result.message);
+          }
+        })
+        .withFailureHandler(showError)
+        .refreshAnalysis();
+    }
+
+    function showError(error) {
+      alert('Error: ' + error);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

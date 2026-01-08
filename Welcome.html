@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to ThriftyMobile</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header .icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .features {
+      margin-bottom: 32px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: start;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+
+    .feature:hover {
+      transform: translateX(4px);
+      background: #f3f4f6;
+    }
+
+    .feature .emoji {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .feature-content h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .feature-content p {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .action-section {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+      box-shadow: none;
+    }
+
+    .btn.secondary:hover {
+      background: #f9fafb;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .note {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="icon">🎉</div>
+      <h1>Welcome to ThriftyMobile Quantum 5.0</h1>
+      <p>Your automated phone buyback analysis engine is ready!</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="emoji">⚡</div>
+        <div class="feature-content">
+          <h3>One-Click Setup</h3>
+          <p>Initialize your entire spreadsheet with pre-configured sheets, headers, and sample data instantly.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="emoji">📊</div>
+        <div class="feature-content">
+          <h3>Sticky Headers & Modern UI</h3>
+          <p>Professional interface with sticky headers, color-coded data, and responsive design.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="emoji">🎯</div>
+        <div class="feature-content">
+          <h3>Smart Analysis</h3>
+          <p>Automatic profit margin calculation and deal recommendations based on market data.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="emoji">🚀</div>
+        <div class="feature-content">
+          <h3>User-Friendly</h3>
+          <p>Simple dialogs, dropdown menus, and validation to make data entry effortless.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-section" id="actionSection">
+      <button class="btn" onclick="initialize()">
+        ⚡ Initialize Spreadsheet Now
+      </button>
+      <button class="btn secondary" onclick="google.script.host.close()">
+        Maybe Later
+      </button>
+      <p class="note">This will set up all sheets with proper formatting and sample data</p>
+    </div>
+
+    <div class="loading" id="loadingSection">
+      <div class="spinner"></div>
+      <p>Setting up your spreadsheet...</p>
+      <p style="font-size: 12px; color: #999; margin-top: 8px;">This may take a few moments</p>
+    </div>
+  </div>
+
+  <script>
+    function initialize() {
+      // Show loading state
+      document.getElementById('actionSection').style.display = 'none';
+      document.getElementById('loadingSection').style.display = 'block';
+
+      // Call initialization
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onError)
+        .initializeSpreadsheet();
+    }
+
+    function onSuccess() {
+      // Close dialog - the backend will show dashboard
+      google.script.host.close();
+    }
+
+    function onError(error) {
+      alert('Error during initialization: ' + error);
+      // Restore action buttons
+      document.getElementById('actionSection').style.display = 'block';
+      document.getElementById('loadingSection').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

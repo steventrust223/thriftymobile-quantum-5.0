@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThriftyMobile Control Panel</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+      background: #f5f5f5;
+      padding: 16px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px 8px 0 0;
+      margin: -16px -16px 16px -16px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1a73e8;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a73e8;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #0d47a1;
+    }
+
+    .button.secondary {
+      background: #e8eaed;
+      color: #333;
+    }
+
+    .button.secondary:hover {
+      background: #dadce0;
+    }
+
+    .button.danger {
+      background: #d32f2f;
+    }
+
+    .button.danger:hover {
+      background: #b71c1c;
+    }
+
+    .button.success {
+      background: #0f9d58;
+    }
+
+    .button.success:hover {
+      background: #0b8043;
+    }
+
+    .status {
+      padding: 8px 12px;
+      background: #e8f5e9;
+      border-left: 4px solid #0f9d58;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 12px;
+    }
+
+    .status.warning {
+      background: #fff3e0;
+      border-left-color: #f57c00;
+    }
+
+    .status.error {
+      background: #ffebee;
+      border-left-color: #d32f2f;
+    }
+
+    .divider {
+      height: 1px;
+      background: #e0e0e0;
+      margin: 16px 0;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #1a73e8;
+      color: white;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .badge.success {
+      background: #0f9d58;
+    }
+
+    .badge.warning {
+      background: #f57c00;
+    }
+
+    .badge.error {
+      background: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚡ ThriftyMobile Control Panel</h1>
+    <p>Quantum Intelligence System v5.0</p>
+  </div>
+
+  <div id="status-container"></div>
+
+  <div class="section">
+    <div class="section-title">📊 Quick Stats</div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-value" id="stat-total">-</div>
+        <div class="stat-label">Total Deals</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-profit">$0</div>
+        <div class="stat-label">Total Profit</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-hot">-</div>
+        <div class="stat-label">Hot Deals</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-margin">-%</div>
+        <div class="stat-label">Avg Margin</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔄 Data Processing</div>
+    <button class="button" onclick="processImports()">Process New Imports</button>
+    <button class="button secondary" onclick="refreshCalculations()">Refresh Calculations</button>
+    <button class="button secondary" onclick="updateVerdict()">Update Verdict Sheet</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🤖 AI Intelligence</div>
+    <button class="button success" onclick="runAIAnalysis()">Run AI Analysis</button>
+    <button class="button secondary" onclick="testClaudeAPI()">Test Claude API</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📱 CRM & Messaging</div>
+    <button class="button" onclick="sendHotDeals()">Send Offers to Hot Deals</button>
+    <button class="button secondary" onclick="syncOneHash()">Sync to OneHash</button>
+    <button class="button secondary" onclick="testSMSIT()">Test SMS-iT Connection</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📈 Analytics</div>
+    <button class="button secondary" onclick="refreshDashboard()">Refresh Dashboard</button>
+    <button class="button secondary" onclick="viewReport()">View Profit Report</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <button class="button danger" onclick="resetData()">⚠️ Reset All Data</button>
+  </div>
+
+  <script>
+    // Load stats on open
+    google.script.run
+      .withSuccessHandler(updateStats)
+      .withFailureHandler(showError)
+      .getQuickStats();
+
+    function updateStats(stats) {
+      if (!stats) return;
+
+      document.getElementById('stat-total').textContent = stats.totalDeals || 0;
+      document.getElementById('stat-profit').textContent = '$' + (stats.totalProfit || 0).toFixed(0);
+      document.getElementById('stat-hot').textContent = stats.hotDeals || 0;
+      document.getElementById('stat-margin').textContent = (stats.avgMargin || 0).toFixed(1) + '%';
+    }
+
+    function showStatus(message, type = 'success') {
+      const container = document.getElementById('status-container');
+      const className = type === 'error' ? 'status error' : type === 'warning' ? 'status warning' : 'status';
+      container.innerHTML = `<div class="${className}">${message}</div>`;
+
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+
+    function showError(error) {
+      showStatus('Error: ' + error.message, 'error');
+    }
+
+    function processImports() {
+      showStatus('Processing imports...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => {
+          showStatus('✅ Imports processed successfully!');
+          google.script.run.withSuccessHandler(updateStats).getQuickStats();
+        })
+        .withFailureHandler(showError)
+        .processNewImports();
+    }
+
+    function refreshCalculations() {
+      showStatus('Refreshing calculations...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => showStatus('✅ Calculations refreshed!'))
+        .withFailureHandler(showError)
+        .refreshAllCalculations();
+    }
+
+    function updateVerdict() {
+      showStatus('Updating verdict sheet...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => showStatus('✅ Verdict sheet updated!'))
+        .withFailureHandler(showError)
+        .updateVerdictSheet();
+    }
+
+    function runAIAnalysis() {
+      showStatus('Running AI analysis... This may take a few minutes.', 'warning');
+      google.script.run
+        .withSuccessHandler(() => {
+          showStatus('✅ AI analysis complete!');
+          google.script.run.withSuccessHandler(updateStats).getQuickStats();
+        })
+        .withFailureHandler(showError)
+        .runAIAnalysis();
+    }
+
+    function testClaudeAPI() {
+      showStatus('Testing Claude API...', 'warning');
+      google.script.run
+        .withSuccessHandler((result) => {
+          showStatus(result ? '✅ Claude API connected!' : '❌ Claude API not configured', result ? 'success' : 'error');
+        })
+        .withFailureHandler(showError)
+        .testClaudeConnection();
+    }
+
+    function sendHotDeals() {
+      if (!confirm('Send automated offers to all STRONG BUY deals?')) return;
+
+      showStatus('Sending offers...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => showStatus('✅ Offers sent!'))
+        .withFailureHandler(showError)
+        .sendOffersToHotDeals();
+    }
+
+    function syncOneHash() {
+      showStatus('Syncing to OneHash...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => showStatus('✅ OneHash synced!'))
+        .withFailureHandler(showError)
+        .syncToOneHash();
+    }
+
+    function testSMSIT() {
+      showStatus('Testing SMS-iT...', 'warning');
+      google.script.run
+        .withSuccessHandler((result) => {
+          showStatus(result ? '✅ SMS-iT connected!' : '❌ SMS-iT not configured', result ? 'success' : 'error');
+        })
+        .withFailureHandler(showError)
+        .testSMSITConnection();
+    }
+
+    function refreshDashboard() {
+      showStatus('Refreshing dashboard...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => showStatus('✅ Dashboard refreshed!'))
+        .withFailureHandler(showError)
+        .refreshDashboard();
+    }
+
+    function viewReport() {
+      showStatus('Generating report...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => showStatus('✅ Report generated!'))
+        .withFailureHandler(showError)
+        .generateReport();
+    }
+
+    function resetData() {
+      if (!confirm('⚠️ WARNING: This will delete ALL data. Are you absolutely sure?')) return;
+      if (!confirm('This action cannot be undone. Continue?')) return;
+
+      showStatus('Resetting data...', 'warning');
+      google.script.run
+        .withSuccessHandler(() => {
+          showStatus('✅ Data reset complete!');
+          google.script.run.withSuccessHandler(updateStats).getQuickStats();
+        })
+        .withFailureHandler(showError)
+        .resetAllData();
+    }
+  </script>
+</body>
+</html>

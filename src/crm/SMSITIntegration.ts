@@ -223,12 +223,235 @@ export class SMSITIntegration {
   }
 
   /**
+   * Upsert contact with full deal context
+   */
+  public static upsertContact(deal: Deal): string | null {
+    try {
+      const apiKey = Config.get('SMSIT_API_KEY');
+      if (!apiKey || !deal.seller.phone) return null;
+
+      const endpoint = `${this.API_BASE_URL}/contacts`;
+
+      const payload = {
+        phone: this.formatPhoneNumber(deal.seller.phone),
+        first_name: (deal.seller.name || 'Seller').split(' ')[0],
+        last_name: (deal.seller.name || '').split(' ').slice(1).join(' '),
+        email: deal.seller.email || '',
+        custom_fields: {
+          deal_id: deal.id,
+          deal_ids: deal.id, // Will accumulate
+          seller_id: '', // Will be set by OneHash
+          platform: deal.platform,
+          location: deal.seller.location || '',
+          seller_type: 'Individual',
+          is_hot_seller: deal.seller.isHotSeller || false,
+          lifetime_deals: 1,
+          lifetime_purchases: 0,
+          risk_score: deal.aiAnalysis.riskScore,
+          current_verdict: deal.aiAnalysis.verdict,
+          current_confidence: deal.aiAnalysis.confidenceScore * 100,
+          current_offer: deal.pricing.suggestedOffer,
+          mao: deal.pricing.maxAllowableOffer,
+          intent_status: 'COLD'
+        },
+        tags: this.generateTags(deal)
+      };
+
+      const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+        method: 'post',
+        contentType: 'application/json',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        },
+        payload: JSON.stringify(payload),
+        muteHttpExceptions: true
+      };
+
+      const response = UrlFetchApp.fetch(endpoint, options);
+      if (response.getResponseCode() >= 200 && response.getResponseCode() < 300) {
+        const data = JSON.parse(response.getContentText());
+        return data.contact_id || data.id || null;
+      }
+
+      return null;
+    } catch (error) {
+      Logger.log(`Error upserting contact: ${error}`);
+      return null;
+    }
+  }
+
+  /**
+   * Generate tags for contact based on deal
+   */
+  private static generateTags(deal: Deal): string[] {
+    const tags: string[] = ['thriftymobile'];
+
+    // Verdict tags
+    tags.push(`verdict:${deal.aiAnalysis.verdict.toLowerCase().replace('_', '-')}`);
+
+    // Profit tier tags
+    tags.push(`profit:${deal.pricing.profitTier}`);
+
+    // Seller tags
+    if (deal.seller.isHotSeller) {
+      tags.push('seller:hot-seller');
+    }
+    tags.push('seller:new');
+
+    // Lifecycle tags
+    tags.push('lifecycle:cold');
+
+    return tags;
+  }
+
+  /**
+   * Add tag to contact
+   */
+  public static addTag(contactId: string, tag: string): boolean {
+    try {
+      const apiKey = Config.get('SMSIT_API_KEY');
+      if (!apiKey) return false;
+
+      const endpoint = `${this.API_BASE_URL}/contacts/${contactId}/tags`;
+
+      const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+        method: 'post',
+        contentType: 'application/json',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        },
+        payload: JSON.stringify({ tag }),
+        muteHttpExceptions: true
+      };
+
+      const response = UrlFetchApp.fetch(endpoint, options);
+      return response.getResponseCode() >= 200 && response.getResponseCode() < 300;
+    } catch (error) {
+      Logger.log(`Error adding tag: ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * Remove tag from contact
+   */
+  public static removeTag(contactId: string, tag: string): boolean {
+    try {
+      const apiKey = Config.get('SMSIT_API_KEY');
+      if (!apiKey) return false;
+
+      const endpoint = `${this.API_BASE_URL}/contacts/${contactId}/tags/${encodeURIComponent(tag)}`;
+
+      const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+        method: 'delete',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        },
+        muteHttpExceptions: true
+      };
+
+      const response = UrlFetchApp.fetch(endpoint, options);
+      return response.getResponseCode() >= 200 && response.getResponseCode() < 300;
+    } catch (error) {
+      Logger.log(`Error removing tag: ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * Enroll contact in campaign
+   */
+  public static enrollInCampaign(contactId: string, campaignId: string, deal: Deal): boolean {
+    try {
+      const apiKey = Config.get('SMSIT_API_KEY');
+      if (!apiKey) return false;
+
+      const endpoint = `${this.API_BASE_URL}/campaigns/${campaignId}/contacts`;
+
+      const payload = {
+        contact_id: contactId,
+        variables: {
+          device_model: `${deal.device.brand} ${deal.device.model}`,
+          platform: deal.platform,
+          current_offer: `$${deal.pricing.suggestedOffer.toFixed(0)}`,
+          mao: `$${deal.pricing.maxAllowableOffer.toFixed(0)}`,
+          first_name: (deal.seller.name || 'there').split(' ')[0]
+        }
+      };
+
+      const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+        method: 'post',
+        contentType: 'application/json',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        },
+        payload: JSON.stringify(payload),
+        muteHttpExceptions: true
+      };
+
+      const response = UrlFetchApp.fetch(endpoint, options);
+      return response.getResponseCode() >= 200 && response.getResponseCode() < 300;
+    } catch (error) {
+      Logger.log(`Error enrolling in campaign: ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * Trigger automated outreach for high-value deals
+   */
+  public static triggerAutomatedOutreach(deal: Deal): boolean {
+    const config = Config.getAutomationConfig();
+
+    if (!config.enableAutoMessaging) {
+      Logger.log('Auto-messaging disabled');
+      return false;
+    }
+
+    // Only auto-contact if confidence is high enough
+    if (deal.aiAnalysis.confidenceScore < (config.autoContactThreshold / 100)) {
+      Logger.log(`Confidence too low for auto-contact: ${deal.aiAnalysis.confidenceScore}`);
+      return false;
+    }
+
+    // Create/update contact
+    const contactId = this.upsertContact(deal);
+    if (!contactId) {
+      Logger.log('Failed to create contact');
+      return false;
+    }
+
+    // Determine campaign based on verdict
+    let campaignId: string | null = null;
+
+    if (deal.aiAnalysis.verdict === 'STRONG_BUY') {
+      campaignId = Config.get('SMSIT_CAMPAIGN_STRONG_BUY');
+      this.addTag(contactId, 'lifecycle:contacted');
+    } else if (deal.aiAnalysis.verdict === 'BUY') {
+      campaignId = Config.get('SMSIT_CAMPAIGN_BUY');
+      this.addTag(contactId, 'lifecycle:contacted');
+    }
+
+    if (!campaignId) {
+      Logger.log('No campaign configured for verdict');
+      // Fall back to direct message
+      return this.sendOfferMessage(deal);
+    }
+
+    // Enroll in campaign
+    return this.enrollInCampaign(campaignId, contactId, deal);
+  }
+
+  /**
    * Test SMS-iT connection
    */
   public static testConnection(): boolean {
     try {
       const apiKey = Config.get('SMSIT_API_KEY');
-      if (!apiKey) return false;
+      if (!apiKey) {
+        Logger.log('SMS-iT API key not configured');
+        return false;
+      }
 
       const endpoint = `${this.API_BASE_URL}/account`;
 
@@ -241,7 +464,15 @@ export class SMSITIntegration {
       };
 
       const response = UrlFetchApp.fetch(endpoint, options);
-      return response.getResponseCode() === 200;
+      const success = response.getResponseCode() === 200;
+
+      if (success) {
+        Logger.log('✅ SMS-iT connection successful');
+      } else {
+        Logger.log(`❌ SMS-iT connection failed: ${response.getResponseCode()}`);
+      }
+
+      return success;
     } catch (error) {
       Logger.log(`SMS-iT connection test failed: ${error}`);
       return false;

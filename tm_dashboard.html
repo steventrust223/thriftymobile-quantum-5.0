@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f8f9fa;
+      font-size: 13px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 12px 0;
+      border-bottom: 2px solid #1a73e8;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #1a73e8;
+    }
+
+    .header p {
+      margin: 4px 0 0;
+      color: #5f6368;
+      font-size: 11px;
+    }
+
+    .last-updated {
+      text-align: center;
+      font-size: 10px;
+      color: #9aa0a6;
+      margin-bottom: 16px;
+    }
+
+    .category {
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .category-header {
+      background: #1a73e8;
+      color: white;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .category-header.overview { background: #1a73e8; }
+    .category-header.deals { background: #00c853; }
+    .category-header.financial { background: #2e7d32; }
+    .category-header.sellers { background: #ff9800; }
+    .category-header.platforms { background: #5e35b1; }
+    .category-header.risk { background: #d32f2f; }
+
+    .category-header:hover {
+      opacity: 0.9;
+    }
+
+    .category-header .toggle {
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+
+    .category-header.collapsed .toggle {
+      transform: rotate(-90deg);
+    }
+
+    .category-content {
+      padding: 0;
+      max-height: 500px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .category-content.collapsed {
+      max-height: 0;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f3f4;
+    }
+
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+
+    .metric-label {
+      color: #5f6368;
+      font-size: 12px;
+    }
+
+    .metric-value {
+      font-weight: 600;
+      font-size: 14px;
+      color: #3c4043;
+    }
+
+    .metric-value.highlight {
+      color: #1a73e8;
+    }
+
+    .metric-value.success {
+      color: #00c853;
+    }
+
+    .metric-value.profit {
+      color: #2e7d32;
+    }
+
+    .metric-value.warning {
+      color: #ff9800;
+    }
+
+    .metric-value.danger {
+      color: #d32f2f;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+    }
+
+    .btn-secondary:hover {
+      background: #f8f9fa;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #5f6368;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #1a73e8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #5f6368;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .chart-section {
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .chart-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: #5f6368;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .deal-bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar-label {
+      width: 70px;
+      font-size: 11px;
+      color: #5f6368;
+    }
+
+    .bar-container {
+      flex: 1;
+      height: 20px;
+      background: #f1f3f4;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .bar-fill.hot { background: #00c853; }
+    .bar-fill.solid { background: #2196f3; }
+    .bar-fill.marginal { background: #ff9800; }
+    .bar-fill.pass { background: #f44336; }
+
+    .bar-count {
+      width: 40px;
+      text-align: right;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 10px;
+      color: #9aa0a6;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Dashboard Analytics</h1>
+    <p>Performance at a glance</p>
+  </div>
+
+  <div class="last-updated" id="lastUpdated">Loading...</div>
+
+  <div id="dashboardContent">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading dashboard...</p>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="refreshDashboard()">Refresh Data</button>
+    <button class="btn btn-secondary" onclick="openSheet()">View Sheet</button>
+  </div>
+
+  <div class="footer">
+    Thrifty Mobile Quantum 5.0
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDashboard();
+    });
+
+    function loadDashboard() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          renderDashboard(data);
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('dashboardContent').innerHTML =
+            '<div class="empty-state">' +
+            '<div class="empty-state-icon">!!</div>' +
+            '<p>Failed to load dashboard</p>' +
+            '<p style="font-size: 11px;">' + err.message + '</p>' +
+            '</div>';
+        })
+        .TM_getDashboardDataForUi();
+    }
+
+    function renderDashboard(data) {
+      if (!data || !data.categories || Object.keys(data.categories).length === 0) {
+        document.getElementById('dashboardContent').innerHTML =
+          '<div class="empty-state">' +
+          '<div class="empty-state-icon">...</div>' +
+          '<p>No dashboard data available</p>' +
+          '<p style="font-size: 11px;">Run analysis to generate metrics</p>' +
+          '</div>';
+        document.getElementById('lastUpdated').textContent = 'No data';
+        return;
+      }
+
+      // Update last updated time
+      if (data.lastUpdated) {
+        var date = new Date(data.lastUpdated);
+        document.getElementById('lastUpdated').textContent =
+          'Last updated: ' + date.toLocaleString();
+      } else {
+        document.getElementById('lastUpdated').textContent = '';
+      }
+
+      var html = '';
+
+      // Define category order and styles
+      var categoryOrder = ['Overview', 'Deal Analysis', 'Financial', 'Sellers', 'Platforms', 'Risk'];
+      var categoryStyles = {
+        'Overview': 'overview',
+        'Deal Analysis': 'deals',
+        'Financial': 'financial',
+        'Sellers': 'sellers',
+        'Platforms': 'platforms',
+        'Risk': 'risk'
+      };
+
+      // Build deal chart first if we have deal data
+      if (data.categories['Deal Analysis']) {
+        html += buildDealChart(data.categories['Deal Analysis']);
+      }
+
+      // Render each category
+      categoryOrder.forEach(function(categoryName) {
+        if (data.categories[categoryName]) {
+          html += buildCategory(categoryName, categoryStyles[categoryName], data.categories[categoryName]);
+        }
+      });
+
+      document.getElementById('dashboardContent').innerHTML = html;
+
+      // Add click handlers for collapsible categories
+      document.querySelectorAll('.category-header').forEach(function(header) {
+        header.addEventListener('click', function() {
+          this.classList.toggle('collapsed');
+          this.nextElementSibling.classList.toggle('collapsed');
+        });
+      });
+    }
+
+    function buildDealChart(dealData) {
+      var deals = {
+        hot: 0,
+        solid: 0,
+        marginal: 0,
+        pass: 0
+      };
+
+      dealData.forEach(function(item) {
+        if (item.metric === 'HOT DEALS') deals.hot = parseInt(item.value) || 0;
+        if (item.metric === 'SOLID DEALS') deals.solid = parseInt(item.value) || 0;
+        if (item.metric === 'MARGINAL') deals.marginal = parseInt(item.value) || 0;
+        if (item.metric === 'PASS') deals.pass = parseInt(item.value) || 0;
+      });
+
+      var total = deals.hot + deals.solid + deals.marginal + deals.pass;
+      if (total === 0) total = 1; // Prevent division by zero
+
+      return '<div class="chart-section">' +
+        '<div class="chart-title">Deal Distribution</div>' +
+        '<div class="deal-bar-chart">' +
+        buildBar('Hot Deals', deals.hot, total, 'hot') +
+        buildBar('Solid', deals.solid, total, 'solid') +
+        buildBar('Marginal', deals.marginal, total, 'marginal') +
+        buildBar('Pass', deals.pass, total, 'pass') +
+        '</div>' +
+        '</div>';
+    }
+
+    function buildBar(label, count, total, cssClass) {
+      var percent = Math.round((count / total) * 100);
+      return '<div class="bar-item">' +
+        '<span class="bar-label">' + label + '</span>' +
+        '<div class="bar-container">' +
+        '<div class="bar-fill ' + cssClass + '" style="width: ' + percent + '%"></div>' +
+        '</div>' +
+        '<span class="bar-count">' + count + '</span>' +
+        '</div>';
+    }
+
+    function buildCategory(name, styleClass, metrics) {
+      var html = '<div class="category">' +
+        '<div class="category-header ' + styleClass + '">' +
+        '<span>' + getCategoryIcon(name) + ' ' + name + '</span>' +
+        '<span class="toggle">...</span>' +
+        '</div>' +
+        '<div class="category-content">';
+
+      metrics.forEach(function(item) {
+        var valueClass = getValueClass(item.metric, item.value);
+        html += '<div class="metric-row">' +
+          '<span class="metric-label">' + item.metric + '</span>' +
+          '<span class="metric-value ' + valueClass + '">' + formatValue(item.value) + '</span>' +
+          '</div>';
+      });
+
+      html += '</div></div>';
+      return html;
+    }
+
+    function getCategoryIcon(name) {
+      var icons = {
+        'Overview': '...',
+        'Deal Analysis': '...',
+        'Financial': '$',
+        'Sellers': '...',
+        'Platforms': '...',
+        'Risk': '!'
+      };
+      return icons[name] || '';
+    }
+
+    function getValueClass(metric, value) {
+      var metricLower = metric.toLowerCase();
+
+      if (metricLower.includes('hot deal') || metricLower.includes('profit')) {
+        return 'success';
+      }
+      if (metricLower.includes('potential') || metricLower.includes('total') ||
+          metricLower.includes('buyback') || metricLower.includes('avg')) {
+        return 'profit';
+      }
+      if (metricLower.includes('high risk')) {
+        return 'danger';
+      }
+      if (metricLower.includes('marginal') || metricLower.includes('medium')) {
+        return 'warning';
+      }
+      if (metricLower.includes('rate') || metricLower.includes('match')) {
+        return 'highlight';
+      }
+
+      return '';
+    }
+
+    function formatValue(value) {
+      if (value === null || value === undefined) return '-';
+      return String(value);
+    }
+
+    function refreshDashboard() {
+      document.getElementById('dashboardContent').innerHTML =
+        '<div class="loading"><div class="spinner"></div><p>Refreshing...</p></div>';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            loadDashboard();
+          } else {
+            alert('Refresh failed: ' + result.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          alert('Refresh failed: ' + err.message);
+        })
+        .TM_updateDashboardFromUi();
+    }
+
+    function openSheet() {
+      google.script.run.TM_openSheet('DASHBOARD_ANALYTICS');
+    }
+  </script>
+</body>
+</html>

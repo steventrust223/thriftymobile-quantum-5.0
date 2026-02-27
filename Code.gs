@@ -33,36 +33,7 @@ const CONFIG = {
 
 // ==================== MENU & UI ====================
 
-/**
- * Adds custom menu on spreadsheet open
- */
-function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('🚀 ThriftyMobile')
-    .addItem('📊 Open Dashboard', 'showDashboard')
-    .addSeparator()
-    .addSubMenu(ui.createMenu('📞 Lead Management')
-      .addItem('🎯 Lead Dashboard', 'showLeadDashboard')
-      .addItem('➕ Add New Lead', 'showAddLeadDialog')
-      .addItem('📋 Manage Leads', 'showManageLeadsDialog')
-      .addItem('🔄 Refresh Lead Scores', 'refreshLeadScores'))
-    .addSeparator()
-    .addItem('⚡ Initialize Spreadsheet', 'initializeSpreadsheet')
-    .addItem('🔄 Refresh Analysis', 'refreshAnalysis')
-    .addItem('📈 Update Market Prices', 'updateMarketPrices')
-    .addSeparator()
-    .addItem('➕ Add New Phone', 'showAddPhoneDialog')
-    .addItem('🔍 Search Inventory', 'showSearchDialog')
-    .addSeparator()
-    .addItem('⚙️ Settings', 'showSettings')
-    .addToUi();
-
-  // Auto-show dashboard on first open
-  const props = PropertiesService.getDocumentProperties();
-  if (!props.getProperty('initialized')) {
-    showWelcomeDialog();
-  }
-}
+// onOpen() is defined in TM_setup.gs — do not duplicate here
 
 /**
  * Shows welcome dialog with one-click setup

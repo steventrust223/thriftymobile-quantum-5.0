@@ -33,7 +33,10 @@ const TM_SHEETS = {
   CRM_INTEGRATION: 'CRM_INTEGRATION',
   SETTINGS: 'SETTINGS',
   SYSTEM_LOG: 'SYSTEM_LOG',
-  DASHBOARD_ANALYTICS: 'DASHBOARD_ANALYTICS'
+  DASHBOARD_ANALYTICS: 'DASHBOARD_ANALYTICS',
+
+  // Resale Price Tracking
+  RESALE_PRICE_TRACKER: 'RESALE_PRICE_TRACKER'
 };
 
 // List of all import sheets for iteration
@@ -253,6 +256,32 @@ const TM_HEADERS_MAO = [
   'Profit Margin %',
   'Calculation Notes',
   'Timestamp'
+];
+
+// Headers for RESALE_PRICE_TRACKER
+const TM_HEADERS_RESALE_TRACKER = [
+  'Timestamp',
+  'Category',
+  'Brand',
+  'Model',
+  'Storage / Variant',
+  'Condition',
+  'eBay Avg Price',
+  'eBay Low',
+  'eBay High',
+  'eBay Listings Found',
+  'Swappa Avg Price',
+  'Swappa Low',
+  'Swappa High',
+  'Swappa Listings Found',
+  'Gazelle Price',
+  'Gazelle Condition',
+  'Aggregate Avg',
+  'Aggregate Low',
+  'Aggregate High',
+  'Total Sources',
+  'Price Trend',
+  'Last Updated'
 ];
 
 // =============================================================================
@@ -524,7 +553,12 @@ const TM_DEFAULT_SETTINGS = [
   ['ESIGN_PROVIDER', 'none', 'E-signature provider (signwell, webhook, none)', 'E-Signature', ''],
   ['SIGNWELL_API_KEY', '', 'API key for SignWell', 'E-Signature', ''],
   ['SIGNWELL_TEMPLATE_ID', '', 'SignWell template ID for purchase agreements', 'E-Signature', ''],
-  ['ESIGN_WEBHOOK_URL', '', 'Webhook URL for e-signature integration', 'E-Signature', '']
+  ['ESIGN_WEBHOOK_URL', '', 'Webhook URL for e-signature integration', 'E-Signature', ''],
+
+  // Resale Scraper Settings
+  ['EBAY_APP_ID', '', 'eBay API Application ID for Finding API (optional, falls back to web scrape)', 'Resale Scraper', ''],
+  ['RESALE_SCRAPE_THROTTLE_MS', '500', 'Delay in ms between scrape requests to avoid rate limiting', 'Resale Scraper', ''],
+  ['RESALE_AUTO_SCRAPE', 'FALSE', 'Enable automatic daily resale price scraping', 'Resale Scraper', '']
 ];
 
 // =============================================================================
@@ -536,6 +570,8 @@ const TM_PLATFORMS = {
   CRAIGSLIST: {name: 'Craigslist', code: 'CL', sheet: 'IMPORT_CL'},
   OFFERUP: {name: 'OfferUp', code: 'OU', sheet: 'IMPORT_OU'},
   EBAY: {name: 'eBay', code: 'EBAY', sheet: 'IMPORT_EBAY'},
+  SWAPPA: {name: 'Swappa', code: 'SWAPPA', sheet: 'RESALE_PRICE_TRACKER'},
+  GAZELLE: {name: 'Gazelle', code: 'GAZELLE', sheet: 'RESALE_PRICE_TRACKER'},
   OTHER: {name: 'Other', code: 'OTHER', sheet: 'IMPORT_OTHER'}
 };
 
@@ -551,9 +587,14 @@ const TM_DEVICE_TYPES = [
   'iPad',
   'Samsung Tablet',
   'MacBook',
+  'Windows Laptop',
   'Apple Watch',
   'Samsung Watch',
   'AirPods',
+  'PlayStation',
+  'Xbox',
+  'Nintendo Switch',
+  'GPU',
   'Other'
 ];
 
@@ -571,6 +612,11 @@ const TM_BRANDS = [
   'Sony',
   'Huawei',
   'Xiaomi',
+  'Microsoft',
+  'Dell',
+  'Nintendo',
+  'NVIDIA',
+  'AMD',
   'Other'
 ];
 
@@ -626,6 +672,8 @@ const TM_VERSION = {
     'SMS integration (SMS-iT, Twilio, Webhook)',
     'E-signature integration (SignWell, Webhook)',
     'Dashboard analytics with visual UI',
-    'Smart outreach with auto-generated messages'
+    'Smart outreach with auto-generated messages',
+    'Multi-platform resale price scraping (eBay, Swappa, Gazelle)',
+    'High-value device tracking (phones, laptops, tablets, consoles, GPUs, watches)'
   ]
 };

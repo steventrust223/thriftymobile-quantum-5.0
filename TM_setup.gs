@@ -17,12 +17,24 @@
 function onOpen(e) {
   const ui = SpreadsheetApp.getUi();
 
+  const resaleMenu = ui.createMenu('Resale Price Scraper')
+    .addItem('Scrape ALL Devices', 'TM_runResalePriceScrape')
+    .addSeparator()
+    .addItem('Scrape Phones Only', 'TM_scrapePhones')
+    .addItem('Scrape Laptops Only', 'TM_scrapeLaptops')
+    .addItem('Scrape Tablets Only', 'TM_scrapeTablets')
+    .addItem('Scrape Consoles Only', 'TM_scrapeConsoles')
+    .addItem('Scrape GPUs Only', 'TM_scrapeGpus')
+    .addItem('Scrape Smartwatches Only', 'TM_scrapeSmartWatches');
+
   ui.createMenu('📱 Thrifty Mobile Quantum')
     .addItem('🔧 Setup / Refresh Structure', 'TM_createOrUpdateSheets')
     .addSeparator()
     .addItem('🔄 Run Import → Master Sync', 'TM_runFullSync')
     .addItem('📊 Run Full Analysis (All Devices)', 'TM_runFullAnalysis')
     .addItem('🏅 Rebuild Verdict Sheet', 'TM_rebuildVerdictSheet')
+    .addSeparator()
+    .addSubMenu(resaleMenu)
     .addSeparator()
     .addItem('📈 Open Dashboards', 'TM_showDashboardSidebar')
     .addItem('🎛️ Control Center', 'TM_showControlCenter')
@@ -70,6 +82,9 @@ function TM_createOrUpdateSheets() {
     TM_setupSettings(ss);
     TM_setupSystemLog(ss);
     TM_setupDashboardAnalytics(ss);
+
+    // Create Resale Price Tracker sheet
+    TM_setupResalePriceTracker(ss);
 
     TM_logEvent(TM_LOG_TYPES.SUCCESS, 'TM_createOrUpdateSheets', 'All sheets created/updated successfully');
     TM_showToast('Setup complete! All sheets are ready.', 'Success', 5);

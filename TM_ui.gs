@@ -172,19 +172,6 @@ function TM_rebuildVerdictFromUi() {
   }
 }
 
-/**
- * Update dashboard from UI
- * @returns {Object} Result
- */
-function TM_updateDashboardFromUi() {
-  try {
-    TM_updateDashboardAnalytics();
-    return {success: true, message: 'Dashboard updated successfully'};
-  } catch (error) {
-    return {success: false, message: error.message};
-  }
-}
-
 // =============================================================================
 // OUTREACH UI FUNCTIONS
 // =============================================================================
@@ -490,18 +477,6 @@ function TM_getVersionInfo() {
   return TM_VERSION;
 }
 
-/**
- * Open a specific sheet
- * @param {string} sheetName - Name of sheet to open
- */
-function TM_openSheet(sheetName) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(sheetName);
-
-  if (sheet) {
-    ss.setActiveSheet(sheet);
-  }
-}
 
 /**
  * Get help topics for help dialog

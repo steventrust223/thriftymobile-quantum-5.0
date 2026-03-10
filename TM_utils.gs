@@ -621,6 +621,227 @@ function TM_getCrmConfig() {
 }
 
 /**
+ * Get SMS configuration from settings
+ * @returns {Object} SMS configuration
+ */
+function TM_getSmsConfig() {
+  var settings = TM_getSettingsMap();
+
+  return {
+    provider: settings['SMS_PROVIDER'] || 'none',
+    apiKey: settings['SMS_API_KEY'] || '',
+    apiSecret: settings['SMS_API_SECRET'] || '',
+    fromNumber: settings['SMS_FROM_NUMBER'] || '',
+    webhookUrl: settings['SMS_WEBHOOK_URL'] || '',
+    enabled: settings['SMS_ENABLED'] === 'TRUE'
+  };
+}
+
+/**
+ * Get SignWell / E-Signature configuration from settings
+ * @returns {Object} E-sign configuration
+ */
+function TM_getSignWellConfig() {
+  var settings = TM_getSettingsMap();
+
+  return {
+    provider: settings['ESIGN_PROVIDER'] || 'none',
+    apiKey: settings['SIGNWELL_API_KEY'] || '',
+    templateId: settings['SIGNWELL_TEMPLATE_ID'] || '',
+    webhookUrl: settings['ESIGN_WEBHOOK_URL'] || '',
+    enabled: settings['ESIGN_ENABLED'] === 'TRUE'
+  };
+}
+
+/**
+ * Send SMS to a contact using configured provider
+ * @param {Object} contact - Contact info {phone, name}
+ * @param {string} message - Message text to send
+ * @returns {Object} Result with success status
+ */
+function TM_sendSms(contact, message) {
+  var config = TM_getSmsConfig();
+
+  if (!config.enabled || config.provider === 'none') {
+    return {
+      success: true,
+      message: 'SMS not configured - message prepared for manual sending',
+      manualOnly: true,
+      payload: {to: contact.phone, body: message}
+    };
+  }
+
+  if (!contact.phone) {
+    return {success: false, message: 'No phone number provided'};
+  }
+
+  try {
+    switch (config.provider) {
+      case 'smsit':
+        var smsitPayload = {
+          phone: contact.phone,
+          message: message,
+          contact_name: contact.name || ''
+        };
+        var smsitResponse = UrlFetchApp.fetch('https://api.smsit.ai/v1/sms/send', {
+          method: 'post',
+          contentType: 'application/json',
+          headers: {'Authorization': 'Bearer ' + config.apiKey},
+          payload: JSON.stringify(smsitPayload),
+          muteHttpExceptions: true
+        });
+        var smsitResult = JSON.parse(smsitResponse.getContentText());
+        return {
+          success: smsitResponse.getResponseCode() === 200,
+          message: smsitResult.message || 'SMS sent via SMS-iT',
+          messageId: smsitResult.id || null
+        };
+
+      case 'twilio':
+        var twilioPayload = {
+          To: contact.phone,
+          From: config.fromNumber,
+          Body: message
+        };
+        var twilioResponse = UrlFetchApp.fetch(
+          'https://api.twilio.com/2010-04-01/Accounts/' + config.apiKey + '/Messages.json', {
+          method: 'post',
+          headers: {'Authorization': 'Basic ' + Utilities.base64Encode(config.apiKey + ':' + config.apiSecret)},
+          payload: twilioPayload,
+          muteHttpExceptions: true
+        });
+        var twilioResult = JSON.parse(twilioResponse.getContentText());
+        return {
+          success: twilioResponse.getResponseCode() === 201,
+          message: twilioResult.status || 'SMS sent via Twilio',
+          messageId: twilioResult.sid || null
+        };
+
+      case 'webhook':
+        var webhookPayload = {
+          to: contact.phone,
+          name: contact.name || '',
+          message: message,
+          timestamp: new Date().toISOString()
+        };
+        var webhookResponse = UrlFetchApp.fetch(config.webhookUrl, {
+          method: 'post',
+          contentType: 'application/json',
+          payload: JSON.stringify(webhookPayload),
+          muteHttpExceptions: true
+        });
+        return {
+          success: webhookResponse.getResponseCode() >= 200 && webhookResponse.getResponseCode() < 300,
+          message: 'SMS sent via webhook',
+          messageId: null
+        };
+
+      default:
+        return {
+          success: true,
+          message: 'Unknown SMS provider - message prepared for manual sending',
+          manualOnly: true,
+          payload: {to: contact.phone, body: message}
+        };
+    }
+  } catch (error) {
+    TM_logEvent(TM_LOG_TYPES.ERROR, 'TM_sendSms', 'SMS send failed: ' + error.message);
+    return {success: false, message: 'SMS error: ' + error.message};
+  }
+}
+
+/**
+ * Create an e-signature document for a deal
+ * @param {Object} dealData - Deal data {id, deviceTitle, sellerName, sellerContact, askingPrice, offerTarget}
+ * @returns {Object} Result with success status, document ID and URL
+ */
+function TM_createEsignDocument(dealData) {
+  var config = TM_getSignWellConfig();
+
+  if (!config.enabled || config.provider === 'none') {
+    return {
+      success: true,
+      message: 'E-signature not configured - document details prepared for manual creation',
+      localOnly: true,
+      documentId: null,
+      documentUrl: null
+    };
+  }
+
+  try {
+    switch (config.provider) {
+      case 'signwell':
+        var signwellPayload = {
+          template_id: config.templateId,
+          name: 'Purchase Agreement - ' + dealData.deviceTitle,
+          recipients: [{
+            id: 'seller',
+            name: dealData.sellerName || 'Seller',
+            email: dealData.sellerContact || '',
+            phone_number: dealData.sellerContact || ''
+          }],
+          fields: [
+            {api_id: 'device_title', value: dealData.deviceTitle || ''},
+            {api_id: 'offer_amount', value: String(dealData.offerTarget || '')},
+            {api_id: 'asking_price', value: String(dealData.askingPrice || '')},
+            {api_id: 'seller_name', value: dealData.sellerName || ''},
+            {api_id: 'date', value: new Date().toLocaleDateString()}
+          ]
+        };
+        var signwellResponse = UrlFetchApp.fetch('https://www.signwell.com/api/v1/documents/', {
+          method: 'post',
+          contentType: 'application/json',
+          headers: {'X-Api-Key': config.apiKey},
+          payload: JSON.stringify(signwellPayload),
+          muteHttpExceptions: true
+        });
+        var signwellResult = JSON.parse(signwellResponse.getContentText());
+        return {
+          success: signwellResponse.getResponseCode() >= 200 && signwellResponse.getResponseCode() < 300,
+          message: signwellResult.message || 'Document created via SignWell',
+          documentId: signwellResult.id || null,
+          documentUrl: signwellResult.url || null
+        };
+
+      case 'webhook':
+        var webhookPayload = {
+          deal_id: dealData.id,
+          device: dealData.deviceTitle,
+          seller_name: dealData.sellerName,
+          seller_contact: dealData.sellerContact,
+          offer_amount: dealData.offerTarget,
+          asking_price: dealData.askingPrice,
+          timestamp: new Date().toISOString()
+        };
+        var webhookResponse = UrlFetchApp.fetch(config.webhookUrl, {
+          method: 'post',
+          contentType: 'application/json',
+          payload: JSON.stringify(webhookPayload),
+          muteHttpExceptions: true
+        });
+        return {
+          success: webhookResponse.getResponseCode() >= 200 && webhookResponse.getResponseCode() < 300,
+          message: 'Document request sent via webhook',
+          documentId: null,
+          documentUrl: null
+        };
+
+      default:
+        return {
+          success: true,
+          message: 'Unknown e-sign provider - details prepared for manual creation',
+          localOnly: true,
+          documentId: null,
+          documentUrl: null
+        };
+    }
+  } catch (error) {
+    TM_logEvent(TM_LOG_TYPES.ERROR, 'TM_createEsignDocument', 'E-sign failed: ' + error.message);
+    return {success: false, message: 'E-sign error: ' + error.message, documentId: null, documentUrl: null};
+  }
+}
+
+/**
  * Sync a lead to external CRM
  * Supports multiple CRM providers with configurable settings
  * @param {Object} leadData - Lead data to sync
@@ -1545,6 +1766,20 @@ function TM_batchUpdate(sheet, data, startRow, startCol) {
   const numCols = data[0].length;
 
   sheet.getRange(startRow, startCol, numRows, numCols).setValues(data);
+}
+
+/**
+ * Convert an array of objects back to a 2D array using the given header order
+ * @param {Array<Object>} objects - Array of row objects (key-value pairs)
+ * @param {Array<string>} headers - Ordered header names
+ * @returns {Array<Array>} 2D array suitable for setValues()
+ */
+function TM_objectsToArray(objects, headers) {
+  return objects.map(function(obj) {
+    return headers.map(function(header) {
+      return obj[header] !== undefined ? obj[header] : '';
+    });
+  });
 }
 
 /**

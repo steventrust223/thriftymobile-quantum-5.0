@@ -251,7 +251,7 @@ const TM_HEADERS_MAO = [
   'Offer Target',
   'Expected Profit',
   'Profit Margin %',
-  'Calculation Notes',
+  'Deal Class',
   'Timestamp'
 ];
 

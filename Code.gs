@@ -34,37 +34,6 @@ const CONFIG = {
 // ==================== MENU & UI ====================
 
 /**
- * Adds custom menu on spreadsheet open
- */
-function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('🚀 ThriftyMobile')
-    .addItem('📊 Open Dashboard', 'showDashboard')
-    .addSeparator()
-    .addSubMenu(ui.createMenu('📞 Lead Management')
-      .addItem('🎯 Lead Dashboard', 'showLeadDashboard')
-      .addItem('➕ Add New Lead', 'showAddLeadDialog')
-      .addItem('📋 Manage Leads', 'showManageLeadsDialog')
-      .addItem('🔄 Refresh Lead Scores', 'refreshLeadScores'))
-    .addSeparator()
-    .addItem('⚡ Initialize Spreadsheet', 'initializeSpreadsheet')
-    .addItem('🔄 Refresh Analysis', 'refreshAnalysis')
-    .addItem('📈 Update Market Prices', 'updateMarketPrices')
-    .addSeparator()
-    .addItem('➕ Add New Phone', 'showAddPhoneDialog')
-    .addItem('🔍 Search Inventory', 'showSearchDialog')
-    .addSeparator()
-    .addItem('⚙️ Settings', 'showSettings')
-    .addToUi();
-
-  // Auto-show dashboard on first open
-  const props = PropertiesService.getDocumentProperties();
-  if (!props.getProperty('initialized')) {
-    showWelcomeDialog();
-  }
-}
-
-/**
  * Shows welcome dialog with one-click setup
  */
 function showWelcomeDialog() {
@@ -502,11 +471,11 @@ function addSampleData() {
   // Sample inventory data
   const inventorySheet = ss.getSheetByName(CONFIG.SHEET_NAMES.INVENTORY);
   const inventoryData = [
-    ['iPhone 14 Pro Max', '123456789012345', 'Excellent', '256GB', 899, new Date(), 'In Stock', 'Clean condition, minor scratches'],
-    ['Samsung Galaxy S23 Ultra', '234567890123456', 'Like New', '512GB', 1099, new Date(), 'In Stock', 'Pristine condition'],
-    ['iPhone 13', '345678901234567', 'Good', '128GB', 599, new Date(), 'Sold', 'Some wear on corners'],
-    ['Google Pixel 7 Pro', '456789012345678', 'Excellent', '256GB', 699, new Date(), 'Listed', 'Excellent screen'],
-    ['iPhone 14', '567890123456789', 'Fair', '128GB', 649, new Date(), 'In Stock', 'Screen has minor scratches']
+    ['iPhone 14 Pro Max', '123456789012345', 'Excellent', '256GB', 899, new Date(), 'In Stock', '', '', 'Clean condition, minor scratches'],
+    ['Samsung Galaxy S23 Ultra', '234567890123456', 'Like New', '512GB', 1099, new Date(), 'In Stock', '', '', 'Pristine condition'],
+    ['iPhone 13', '345678901234567', 'Good', '128GB', 599, new Date(), 'Sold', '', '', 'Some wear on corners'],
+    ['Google Pixel 7 Pro', '456789012345678', 'Excellent', '256GB', 699, new Date(), 'Listed', '', '', 'Excellent screen'],
+    ['iPhone 14', '567890123456789', 'Fair', '128GB', 649, new Date(), 'In Stock', '', '', 'Screen has minor scratches']
   ];
 
   if (inventorySheet.getLastRow() <= 1) {

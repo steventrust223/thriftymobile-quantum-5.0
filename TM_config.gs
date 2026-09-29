@@ -115,7 +115,10 @@ const TM_HEADERS_MASTER = [
   'Last Updated',
   'Title',
   'Seller Name',
-  'Seller Contact'
+  'Seller Contact',
+  'MAO Basis Buyer',
+  'MAO Basis Sheet Date',
+  'MAO Price Warning'
 ];
 
 // Headers for VERDICT sheet
@@ -533,6 +536,12 @@ const TM_DEFAULT_SETTINGS = [
 
   // Buyer Price Feed Settings
   ['STALE_PRICE_DAYS', '14', 'Prices older than this many days are flagged stale and must not feed MAO without a warning', 'BuyerPrices', ''],
+
+  // MAO Formula Settings - MAO = best_exit.top_price - deductions - shipping - fees - target margin - risk holdback
+  // Defaults are 0 so nothing changes until you set real operating costs.
+  ['OUTBOUND_SHIPPING_COST', '0', 'Flat $ outbound shipping cost subtracted from MAO', 'MaoFormula', ''],
+  ['PLATFORM_FEE_PERCENT', '0', 'Platform/payment fee as a decimal of top exit price, subtracted from MAO', 'MaoFormula', ''],
+  ['RISK_HOLDBACK_AMOUNT', '0', 'Flat $ risk holdback subtracted from MAO (interim global value until per-unit intake risk holdback lands)', 'MaoFormula', ''],
 
   // Deduction Settings
   ['DEDUCTION_CRACKED_BACK', '180', 'Deduction for cracked back glass', 'Deductions', ''],

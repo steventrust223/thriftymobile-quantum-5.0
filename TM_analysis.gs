@@ -41,6 +41,9 @@ function TM_calculateMaoForAllDevices() {
     device['Deal Class'] = analysis.dealClass;
     device['Market Advantage Score'] = analysis.marketAdvantage;
     device['Estimated Resale Value'] = analysis.estimatedResale;
+    device['MAO Basis Buyer'] = analysis.maoBasisBuyer;
+    device['MAO Basis Sheet Date'] = analysis.maoBasisSheetDate;
+    device['MAO Price Warning'] = analysis.maoPriceWarning;
   });
 
   // Write results back to sheet
@@ -68,11 +71,31 @@ function TM_analyzeDevice(device, settings) {
     riskScore: 5,
     dealClass: 'PASS',
     marketAdvantage: 0,
-    estimatedResale: 0
+    estimatedResale: 0,
+    maoBasisBuyer: '',
+    maoBasisSheetDate: '',
+    maoPriceWarning: ''
   };
 
   const askingPrice = TM_parsePrice(device['Asking Price']);
-  const buybackValue = TM_parsePrice(device['Matched Buyback Value']);
+  const grade = device['Final Grade'] || device['Guessed Grade'] || 'B';
+  const bestExit = TM_getBestExit(device['Model'], device['Storage'], grade);
+
+  let buybackValue;
+
+  if (bestExit) {
+    // Feature: MAO anchored to real wholesale exit prices (best_exit view)
+    const maoResult = TM_calculateMaoFromBestExit(bestExit, device, settings);
+    buybackValue = maoResult.buybackValue;
+    result.mao = maoResult.mao;
+    result.maoBasisBuyer = maoResult.maoBasisBuyer;
+    result.maoBasisSheetDate = maoResult.maoBasisSheetDate;
+    result.maoPriceWarning = maoResult.maoPriceWarning;
+  } else {
+    // No Buyer Prices match yet - fall back to the legacy single-buyer value
+    buybackValue = TM_parsePrice(device['Matched Buyback Value']);
+    result.maoBasisBuyer = '(legacy - no Buyer Prices match)';
+  }
 
   // If no buyback value or blacklisted, return defaults
   if (buybackValue === 0 || device['Final Grade'] === 'BLACKLISTED') {
@@ -82,9 +105,6 @@ function TM_analyzeDevice(device, settings) {
   }
 
   // Get parameters from settings
-  const targetMargin = parseFloat(settings['TARGET_PROFIT_MARGIN']) || TM_MAO_PARAMS.DEFAULT_TARGET_MARGIN;
-  const minMargin = parseFloat(settings['MIN_PROFIT_MARGIN']) || TM_MAO_PARAMS.MIN_ACCEPTABLE_MARGIN;
-  const minProfit = parseFloat(settings['MIN_PROFIT_AMOUNT']) || 25;
   const offerRatio = parseFloat(settings['OFFER_TO_MAO_RATIO']) || TM_MAO_PARAMS.OFFER_TO_MAO_RATIO;
 
   // Calculate risk score
@@ -96,31 +116,35 @@ function TM_analyzeDevice(device, settings) {
   // Calculate estimated resale (slightly above buyback for direct sales)
   result.estimatedResale = buybackValue * 1.1;
 
-  // Calculate MAO (Maximum Allowable Offer)
-  // MAO = Buyback Value * (1 - Target Margin) adjusted for risk
-  let mao = buybackValue * (1 - targetMargin);
+  if (!bestExit) {
+    // Legacy MAO formula (no best-exit citation available for this model/storage/grade)
+    // MAO = Buyback Value * (1 - Target Margin) adjusted for risk
+    const targetMargin = parseFloat(settings['TARGET_PROFIT_MARGIN']) || TM_MAO_PARAMS.DEFAULT_TARGET_MARGIN;
+    let mao = buybackValue * (1 - targetMargin);
 
-  // Adjust MAO for risk
-  if (result.riskScore <= TM_DEAL_THRESHOLDS.LOW_RISK) {
-    mao *= TM_MAO_PARAMS.LOW_RISK_MULTIPLIER;
-  } else if (result.riskScore >= TM_DEAL_THRESHOLDS.HIGH_RISK) {
-    mao *= TM_MAO_PARAMS.HIGH_RISK_MULTIPLIER;
+    // Adjust MAO for risk
+    if (result.riskScore <= TM_DEAL_THRESHOLDS.LOW_RISK) {
+      mao *= TM_MAO_PARAMS.LOW_RISK_MULTIPLIER;
+    } else if (result.riskScore >= TM_DEAL_THRESHOLDS.HIGH_RISK) {
+      mao *= TM_MAO_PARAMS.HIGH_RISK_MULTIPLIER;
+    }
+
+    // Apply hot seller bonus
+    if (device['Hot Seller?'] === 'YES') {
+      mao *= (1 + TM_MAO_PARAMS.HOT_SELLER_BONUS);
+    }
+
+    // Apply market advantage bonus
+    if (result.marketAdvantage >= TM_MAO_PARAMS.MARKET_ADV_BONUS_THRESHOLD) {
+      mao *= (1 + TM_MAO_PARAMS.MARKET_ADV_BONUS);
+    }
+
+    result.mao = Math.round(mao);
   }
-
-  // Apply hot seller bonus
-  if (device['Hot Seller?'] === 'YES') {
-    mao *= (1 + TM_MAO_PARAMS.HOT_SELLER_BONUS);
-  }
-
-  // Apply market advantage bonus
-  if (result.marketAdvantage >= TM_MAO_PARAMS.MARKET_ADV_BONUS_THRESHOLD) {
-    mao *= (1 + TM_MAO_PARAMS.MARKET_ADV_BONUS);
-  }
-
-  result.mao = Math.round(mao);
+  // else: result.mao was already set by TM_calculateMaoFromBestExit above
 
   // Calculate offer target (what we actually send first)
-  result.offerTarget = Math.round(mao * offerRatio);
+  result.offerTarget = Math.round(result.mao * offerRatio);
 
   // Make sure offer doesn't exceed asking price (but can be close)
   if (result.offerTarget > askingPrice * 0.95) {
@@ -139,6 +163,50 @@ function TM_analyzeDevice(device, settings) {
   result.dealClass = TM_classifyDeal(result.expectedProfit, result.profitMarginPercent, result.riskScore);
 
   return result;
+}
+
+/**
+ * Calculate MAO anchored to the best-exit price for this device's model+storage+grade.
+ *
+ * MAO = best_exit.top_price
+ *       - deductions (defect-based, from TM_calculateDeductions)
+ *       - outbound shipping (OUTBOUND_SHIPPING_COST setting)
+ *       - platform/payment fees (PLATFORM_FEE_PERCENT setting, % of top price)
+ *       - target margin (TARGET_PROFIT_MARGIN setting, % of top price)
+ *       - risk holdback (RISK_HOLDBACK_AMOUNT setting)
+ *
+ * @param {Object} bestExit - Result of TM_getBestExit()
+ * @param {Object} device - Device data
+ * @param {Object} settings - Settings map
+ * @returns {Object} { mao, buybackValue, maoBasisBuyer, maoBasisSheetDate, maoPriceWarning }
+ */
+function TM_calculateMaoFromBestExit(bestExit, device, settings) {
+  const deductionResult = TM_calculateDeductions(device);
+  const buybackValue = Math.max(0, bestExit.topPrice - deductionResult.total);
+
+  const shipping = parseFloat(settings['OUTBOUND_SHIPPING_COST']) || 0;
+  const feePercent = parseFloat(settings['PLATFORM_FEE_PERCENT']) || 0;
+  const targetMargin = parseFloat(settings['TARGET_PROFIT_MARGIN']) || TM_MAO_PARAMS.DEFAULT_TARGET_MARGIN;
+  const riskHoldback = parseFloat(settings['RISK_HOLDBACK_AMOUNT']) || 0;
+
+  const feeAmount = bestExit.topPrice * feePercent;
+  const marginAmount = bestExit.topPrice * targetMargin;
+
+  const mao = Math.max(0, Math.round(
+    bestExit.topPrice - deductionResult.total - shipping - feeAmount - marginAmount - riskHoldback
+  ));
+
+  const sheetDateText = bestExit.topSheetDate instanceof Date
+    ? TM_formatDateShort(bestExit.topSheetDate)
+    : String(bestExit.topSheetDate || '');
+
+  return {
+    mao: mao,
+    buybackValue: buybackValue,
+    maoBasisBuyer: bestExit.topBuyer || '',
+    maoBasisSheetDate: sheetDateText,
+    maoPriceWarning: bestExit.isStale ? `STALE PRICE (sheet date ${sheetDateText})` : ''
+  };
 }
 
 // =============================================================================
@@ -426,7 +494,10 @@ function TM_updateMasterWithAnalysis(masterSheet, data, headerMap) {
     'Risk Score',
     'Deal Class',
     'Market Advantage Score',
-    'Estimated Resale Value'
+    'Estimated Resale Value',
+    'MAO Basis Buyer',
+    'MAO Basis Sheet Date',
+    'MAO Price Warning'
   ];
 
   columns.forEach(function(colName) {

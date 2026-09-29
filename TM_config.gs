@@ -27,6 +27,8 @@ const TM_SHEETS = {
 
   // Reference / Partner Sheets
   BUYBACK_PARTNER_PRICING: 'BUYBACK_PARTNER_PRICING',
+  BUYER_PRICES: 'BUYER_PRICES',
+  BEST_EXIT: 'BEST_EXIT',
 
   // Supporting Sheets
   LEADS_TRACKER: 'LEADS_TRACKER',
@@ -155,6 +157,40 @@ const TM_HEADERS_BUYBACK_PRICING = [
   'Grade D',
   'DOA',
   'Notes'
+];
+
+// Headers for BUYER_PRICES - raw multi-buyer price feed (Feature: Buyer Price Feed)
+// Everything downstream (MAO, deductions, routing) is derived from this table.
+const TM_HEADERS_BUYER_PRICES = [
+  'Category',
+  'Brand',
+  'Model',
+  'Storage',
+  'Carrier Status',
+  'Condition Tier',
+  'Grade',
+  'Buyer ID',
+  'Price',
+  'Sheet Date',
+  'Source',
+  'Notes',
+  'Entered At'
+];
+
+// Headers for BEST_EXIT - derived view computed from BUYER_PRICES by TM_computeBestExit()
+const TM_HEADERS_BEST_EXIT = [
+  'Category',
+  'Brand',
+  'Model',
+  'Storage',
+  'Grade',
+  'Top Price',
+  'Top Buyer',
+  'Top Sheet Date',
+  'Second Price',
+  'Second Buyer',
+  'Stale?',
+  'Last Computed'
 ];
 
 // Headers for LEADS_TRACKER
@@ -495,6 +531,9 @@ const TM_DEFAULT_SETTINGS = [
   // System Settings
   ['AUTO_SYNC_ENABLED', 'FALSE', 'Enable automatic sync on edit', 'System', ''],
 
+  // Buyer Price Feed Settings
+  ['STALE_PRICE_DAYS', '14', 'Prices older than this many days are flagged stale and must not feed MAO without a warning', 'BuyerPrices', ''],
+
   // Deduction Settings
   ['DEDUCTION_CRACKED_BACK', '180', 'Deduction for cracked back glass', 'Deductions', ''],
   ['DEDUCTION_CRACKED_LENS', '90', 'Deduction for cracked camera lens', 'Deductions', ''],
@@ -556,6 +595,18 @@ const TM_DEVICE_TYPES = [
   'AirPods',
   'Other'
 ];
+
+// =============================================================================
+// GRADING / BUYER PRICE FEED ENUMS
+// =============================================================================
+
+const TM_GRADES = ['A', 'B+', 'B', 'C', 'D', 'DOA'];
+
+const TM_CARRIER_STATUSES = ['Unlocked', 'Locked', 'MDM'];
+
+const TM_CONDITION_TIERS = ['Sealed', 'Open', 'HSO', 'Used'];
+
+const TM_PRICE_SOURCES = ['Manual Entry', 'Screenshot', 'Sheets Link'];
 
 // =============================================================================
 // BRAND MAPPINGS

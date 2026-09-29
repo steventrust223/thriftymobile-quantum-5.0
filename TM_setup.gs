@@ -20,6 +20,9 @@ function onOpen(e) {
   ui.createMenu('📱 Thrifty Mobile Quantum')
     .addItem('🔧 Setup / Refresh Structure', 'TM_createOrUpdateSheets')
     .addSeparator()
+    .addItem('💲 Recalculate Best Exit Prices', 'TM_computeBestExit')
+    .addItem('📥 Migrate Legacy Buyback Pricing → Buyer Prices', 'TM_migrateLegacyBuybackPricingToBuyerPrices')
+    .addSeparator()
     .addItem('🔄 Run Import → Master Sync', 'TM_runFullSync')
     .addItem('📊 Run Full Analysis (All Devices)', 'TM_runFullAnalysis')
     .addItem('🏅 Rebuild Verdict Sheet', 'TM_rebuildVerdictSheet')
@@ -63,6 +66,8 @@ function TM_createOrUpdateSheets() {
 
     // Create Reference sheets
     TM_setupBuybackPartnerPricing(ss);
+    TM_setupBuyerPrices(ss);
+    TM_setupBestExit(ss);
 
     // Create Supporting sheets
     TM_setupLeadsTracker(ss);
@@ -394,6 +399,119 @@ function TM_addSampleBuybackPricing(sheet) {
   ];
 
   sheet.getRange(2, 1, sampleData.length, TM_HEADERS_BUYBACK_PRICING.length).setValues(sampleData);
+}
+
+/**
+ * Setup the Buyer Prices sheet - raw multi-buyer price feed.
+ * All MAO calculations should trace back to a row here (buyer + sheet date).
+ * @param {Spreadsheet} ss - The spreadsheet
+ */
+function TM_setupBuyerPrices(ss) {
+  let sheet = ss.getSheetByName(TM_SHEETS.BUYER_PRICES);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(TM_SHEETS.BUYER_PRICES);
+  }
+
+  // Set headers
+  TM_ensureHeaders(sheet, TM_HEADERS_BUYER_PRICES);
+
+  // Format header
+  const headerRange = sheet.getRange(1, 1, 1, TM_HEADERS_BUYER_PRICES.length);
+  headerRange.setBackground('#00695c');
+  headerRange.setFontColor(TM_COLORS.HEADER_TEXT);
+  headerRange.setFontWeight('bold');
+
+  // Set column widths
+  sheet.setColumnWidth(1, 110); // Category
+  sheet.setColumnWidth(2, 100); // Brand
+  sheet.setColumnWidth(3, 180); // Model
+  sheet.setColumnWidth(4, 80);  // Storage
+  sheet.setColumnWidth(5, 110); // Carrier Status
+  sheet.setColumnWidth(6, 110); // Condition Tier
+  sheet.setColumnWidth(7, 70);  // Grade
+  sheet.setColumnWidth(8, 130); // Buyer ID
+  sheet.setColumnWidth(9, 90);  // Price
+  sheet.setColumnWidth(10, 110); // Sheet Date
+  sheet.setColumnWidth(11, 120); // Source
+  sheet.setColumnWidth(12, 200); // Notes
+
+  // Data validation dropdowns
+  const numRows = 1000;
+  TM_applyListValidation(sheet, headerRange, 'Category', TM_DEVICE_TYPES, numRows);
+  TM_applyListValidation(sheet, headerRange, 'Carrier Status', TM_CARRIER_STATUSES, numRows);
+  TM_applyListValidation(sheet, headerRange, 'Condition Tier', TM_CONDITION_TIERS, numRows);
+  TM_applyListValidation(sheet, headerRange, 'Grade', TM_GRADES, numRows);
+  TM_applyListValidation(sheet, headerRange, 'Source', TM_PRICE_SOURCES, numRows);
+
+  // Apply alternating colors
+  TM_applyAlternatingColors(sheet, TM_HEADERS_BUYER_PRICES.length);
+
+  // Freeze header
+  sheet.setFrozenRows(1);
+}
+
+/**
+ * Setup the Best Exit sheet - derived top/second price per model+storage+grade.
+ * This sheet is rebuilt by TM_computeBestExit() and should not be hand-edited.
+ * @param {Spreadsheet} ss - The spreadsheet
+ */
+function TM_setupBestExit(ss) {
+  let sheet = ss.getSheetByName(TM_SHEETS.BEST_EXIT);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(TM_SHEETS.BEST_EXIT);
+  }
+
+  // Set headers
+  TM_ensureHeaders(sheet, TM_HEADERS_BEST_EXIT);
+
+  // Format header
+  const headerRange = sheet.getRange(1, 1, 1, TM_HEADERS_BEST_EXIT.length);
+  headerRange.setBackground('#00695c');
+  headerRange.setFontColor(TM_COLORS.HEADER_TEXT);
+  headerRange.setFontWeight('bold');
+
+  // Set column widths
+  sheet.setColumnWidth(1, 110); // Category
+  sheet.setColumnWidth(2, 100); // Brand
+  sheet.setColumnWidth(3, 180); // Model
+  sheet.setColumnWidth(4, 80);  // Storage
+  sheet.setColumnWidth(5, 70);  // Grade
+  sheet.setColumnWidth(6, 90);  // Top Price
+  sheet.setColumnWidth(7, 130); // Top Buyer
+  sheet.setColumnWidth(8, 110); // Top Sheet Date
+  sheet.setColumnWidth(9, 90);  // Second Price
+  sheet.setColumnWidth(10, 130); // Second Buyer
+  sheet.setColumnWidth(11, 70);  // Stale?
+  sheet.setColumnWidth(12, 140); // Last Computed
+
+  // Apply alternating colors
+  TM_applyAlternatingColors(sheet, TM_HEADERS_BEST_EXIT.length);
+
+  // Freeze header
+  sheet.setFrozenRows(1);
+}
+
+/**
+ * Apply a dropdown (list) validation to every data row under a named header column.
+ * @param {Sheet} sheet - The sheet to apply validation to
+ * @param {Range} headerRange - The header row range (used to find the column)
+ * @param {string} headerName - Header text to match
+ * @param {Array} values - Allowed values
+ * @param {number} numRows - Number of data rows to cover below the header
+ */
+function TM_applyListValidation(sheet, headerRange, headerName, values, numRows) {
+  const headers = headerRange.getValues()[0];
+  const colIndex = headers.indexOf(headerName);
+  if (colIndex === -1) return;
+
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)
+    .setAllowInvalid(true)
+    .build();
+
+  sheet.getRange(2, colIndex + 1, numRows, 1).setDataValidation(rule);
 }
 
 // =============================================================================
